@@ -1,4 +1,4 @@
-module github.com/liqiongtao/goo/v1
+module github.com/liqiongtao/goo
 
 go 1.13
 
