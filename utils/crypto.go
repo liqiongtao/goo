@@ -1,4 +1,4 @@
-package goo
+package utils
 
 import (
 	"bytes"
@@ -19,54 +19,54 @@ import (
 	"strings"
 )
 
-func (gooUtil) MD5(buf []byte) string {
+func MD5(buf []byte) string {
 	h := md5.New()
 	h.Write(buf)
 	return strings.ToUpper(hex.EncodeToString(h.Sum(nil)))
 }
 
-func (gooUtil) SHA1(buf []byte) string {
+func SHA1(buf []byte) string {
 	h := sha1.New()
 	h.Write(buf)
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func (gooUtil) SHA256(buf, key []byte) string {
+func SHA256(buf, key []byte) string {
 	h := hmac.New(sha256.New, key)
 	h.Write(buf)
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func (gooUtil) HMacMd5(buf, key []byte) string {
+func HMacMd5(buf, key []byte) string {
 	h := hmac.New(md5.New, key)
 	h.Write(buf)
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func (gooUtil) HMacSha1(buf, key []byte) string {
+func HMacSha1(buf, key []byte) string {
 	h := hmac.New(sha1.New, key)
 	h.Write(buf)
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func (gooUtil) HMacSha256(buf, key []byte) string {
+func HMacSha256(buf, key []byte) string {
 	h := hmac.New(sha256.New, key)
 	h.Write(buf)
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func (gooUtil) Base64Encode(buf []byte) string {
+func Base64Encode(buf []byte) string {
 	return base64.StdEncoding.EncodeToString(buf)
 }
 
-func (gooUtil) Base64Decode(str string) []byte {
+func Base64Decode(str string) []byte {
 	var count = (4 - len(str)%4) % 4
 	str += strings.Repeat("=", count)
 	buf, _ := base64.StdEncoding.DecodeString(str)
 	return buf
 }
 
-func (ut gooUtil) SHAWithRSA(key, data []byte) (string, error) {
+func SHAWithRSA(key, data []byte) (string, error) {
 	pkey, err := x509.ParsePKCS8PrivateKey(key)
 	if err != nil {
 		return "", err
@@ -80,10 +80,10 @@ func (ut gooUtil) SHAWithRSA(key, data []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return ut.Base64Encode(buf), nil
+	return Base64Encode(buf), nil
 }
 
-func (ut gooUtil) AESCBCEncrypt(rawData, key []byte) ([]byte, error) {
+func AESCBCEncrypt(rawData, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func (ut gooUtil) AESCBCEncrypt(rawData, key []byte) ([]byte, error) {
 	// block 大小 16
 	blockSize := block.BlockSize()
 	// 填充原文
-	rawData = ut.pkcs7padding(rawData, blockSize)
+	rawData = pkcs7padding(rawData, blockSize)
 
 	// 定义、初始向量IV
 	cipherText := make([]byte, blockSize+len(rawData))
@@ -115,7 +115,7 @@ func (ut gooUtil) AESCBCEncrypt(rawData, key []byte) ([]byte, error) {
 	return encryptData, nil
 }
 
-func (ut gooUtil) AESCBCDecrypt(encryptData, key []byte) ([]byte, error) {
+func AESCBCDecrypt(encryptData, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -144,18 +144,18 @@ func (ut gooUtil) AESCBCDecrypt(encryptData, key []byte) ([]byte, error) {
 	// 解密
 	mode := cipher.NewCBCDecrypter(block, iv)
 	mode.CryptBlocks(origData, encryptData)
-	origData = ut.pkcs7unpadding(origData)
+	origData = pkcs7unpadding(origData)
 
 	return origData, nil
 }
 
-func (gooUtil) pkcs7padding(cipherText []byte, blockSize int) []byte {
+func pkcs7padding(cipherText []byte, blockSize int) []byte {
 	padding := blockSize - len(cipherText)%blockSize
 	padText := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(cipherText, padText...)
 }
 
-func (gooUtil) pkcs7unpadding(origData []byte) []byte {
+func pkcs7unpadding(origData []byte) []byte {
 	l := len(origData)
 	unPadding := int(origData[l-1])
 	if l < unPadding {
@@ -164,7 +164,7 @@ func (gooUtil) pkcs7unpadding(origData []byte) []byte {
 	return origData[:(l - unPadding)]
 }
 
-func (gooUtil) SessionId() string {
+func SessionId() string {
 	buf := make([]byte, 32)
 	_, err := rand.Read(buf)
 	if err != nil {

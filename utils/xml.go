@@ -1,4 +1,4 @@
-package goo
+package utils
 
 import (
 	"encoding/xml"

@@ -1,8 +1,10 @@
-package goo
+package utils
 
 import (
 	"strings"
 )
+
+var words = "abcdefjhigklmnpqrstuvwxyz13567890"
 
 type IdCode struct {
 	BaseNum int64
@@ -37,10 +39,10 @@ func (ic *IdCode) Id(code string) int64 {
 	return (id >> ic.StepNum) - ic.BaseNum
 }
 
-func (gooUtil) Id2Code(id int64) string {
-	return (&IdCode{BaseNum: 1001, StepNum: 21, Words: "abcdefjhigklmnpqrstuvwxyz13567890"}).Code(id)
+func Id2Code(id int64) string {
+	return (&IdCode{BaseNum: 1001, StepNum: 21, Words: words}).Code(id)
 }
 
-func (gooUtil) Code2Id(code string) int64 {
-	return (&IdCode{BaseNum: 1001, StepNum: 21, Words: "abcdefjhigklmnpqrstuvwxyz13567890"}).Id(code)
+func Code2Id(code string) int64 {
+	return (&IdCode{BaseNum: 1001, StepNum: 21, Words: words}).Id(code)
 }

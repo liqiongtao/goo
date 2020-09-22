@@ -1,11 +1,11 @@
-package goo
+package utils
 
 import (
 	"math/big"
 )
 
 // 加
-func (gooUtil) BigIntAdd(num1 string, num2 string) string {
+func BigIntAdd(num1 string, num2 string) string {
 	x, _ := new(big.Int).SetString(num1, 10)
 	y, _ := new(big.Int).SetString(num2, 10)
 	x.Add(x, y)
@@ -13,7 +13,7 @@ func (gooUtil) BigIntAdd(num1 string, num2 string) string {
 }
 
 // 减
-func (gooUtil) BigIntReduce(num1 string, num2 string) string {
+func BigIntReduce(num1 string, num2 string) string {
 	x, _ := new(big.Int).SetString(num1, 10)
 	y, _ := new(big.Int).SetString("-"+num2, 10)
 	x.Add(x, y)
@@ -21,7 +21,7 @@ func (gooUtil) BigIntReduce(num1 string, num2 string) string {
 }
 
 // 乘
-func (gooUtil) BigIntMul(num1 string, num2 string) string {
+func BigIntMul(num1 string, num2 string) string {
 	x, _ := new(big.Int).SetString(num1, 10)
 	y, _ := new(big.Int).SetString(num2, 10)
 	x.Mul(x, y)
@@ -29,7 +29,7 @@ func (gooUtil) BigIntMul(num1 string, num2 string) string {
 }
 
 // 除
-func (gooUtil) BigIntDiv(num1 string, num2 string) string {
+func BigIntDiv(num1 string, num2 string) string {
 	x, _ := new(big.Int).SetString(num1, 10)
 	y, _ := new(big.Int).SetString(num2, 10)
 	x.Div(x, y)
@@ -37,7 +37,7 @@ func (gooUtil) BigIntDiv(num1 string, num2 string) string {
 }
 
 // 取模
-func (gooUtil) BigIntMod(num1 string, num2 string) string {
+func BigIntMod(num1 string, num2 string) string {
 	x, _ := new(big.Int).SetString(num1, 10)
 	y, _ := new(big.Int).SetString(num2, 10)
 	x.Mod(x, y)
@@ -45,7 +45,7 @@ func (gooUtil) BigIntMod(num1 string, num2 string) string {
 }
 
 // 比大小，大于返回1，等于返回0，小于返回-1
-func (gooUtil) BigIntCmp(num1 string, num2 string) int {
+func BigIntCmp(num1 string, num2 string) int {
 	x, _ := new(big.Int).SetString(num1, 10)
 	y, _ := new(big.Int).SetString(num2, 10)
 	return x.Cmp(y)
