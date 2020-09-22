@@ -119,3 +119,89 @@ func main() {
     fmt.Println(name)
 }
 ```
+# 验证码
+
+## 获取
+
+```
+rst := captcha.Get(240, 80)
+fmt.Println(rst)
+```
+
+返回数据结构
+
+```
+{
+    "id": "",
+    "base64image": "",
+}
+```
+
+## 校验
+
+```
+err := captcha.Verify("{id}", "{code}")
+if err != nil {
+}
+```
+
+# 二维码
+
+## 字节
+
+```
+buf, err := qrcode.New("http://googo.io").Get()
+```
+
+## base64
+
+```
+b64img, err := qrcode.New("http://googo.io").Base64Image()
+if err != nil {
+}
+```
+
+## 输出图片
+
+```
+err := qrcode.New("http://googo.io").Output(c)
+if err != nil {
+}
+```
+
+# 短信
+
+## 发送
+
+```
+conf := sms.AliyunConfig{
+    Region:       "",
+    Appid:        "",
+    Secret:       "",
+    SignName:     "",
+    TemplateCode: "",
+}
+code, err := sms.New(sms.Aliyun(conf)).Send("18512345678", "mob-login")
+if err != nil {
+    log.Println(err.Error())
+    return
+}
+log.Println(code)
+```
+
+## 验证
+
+```
+conf := sms.AliyunConfig{
+    Region:       "",
+    Appid:        "",
+    Secret:       "",
+    SignName:     "",
+    TemplateCode: "",
+}
+err := sms.New(sms.Aliyun(conf)).Verify("18512345678", "mob-login", "1234")
+if err != nil {
+    log.Println(err.Error())
+    return
+}
+```
