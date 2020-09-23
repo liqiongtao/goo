@@ -83,7 +83,7 @@ func SHAWithRSA(key, data []byte) (string, error) {
 	return Base64Encode(buf), nil
 }
 
-func AESCBCEncrypt(rawData, key []byte) ([]byte, error) {
+func AESCBCEncrypt(rawData, key, iv []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -96,7 +96,9 @@ func AESCBCEncrypt(rawData, key []byte) ([]byte, error) {
 
 	// 定义、初始向量IV
 	cipherText := make([]byte, blockSize+len(rawData))
-	iv := cipherText[:blockSize]
+	if iv == nil {
+		iv = cipherText[:blockSize]
+	}
 
 	// 填充向量IV
 	// ReadFull从rand.Reader精确地读取len(b)字节数据填充进iv
@@ -115,7 +117,7 @@ func AESCBCEncrypt(rawData, key []byte) ([]byte, error) {
 	return encryptData, nil
 }
 
-func AESCBCDecrypt(encryptData, key []byte) ([]byte, error) {
+func AESCBCDecrypt(encryptData, key, iv []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -137,7 +139,9 @@ func AESCBCDecrypt(encryptData, key []byte) ([]byte, error) {
 		return nil, errors.New("encrypt data is not a multiple of the block size")
 	}
 
-	iv := buf[:blockSize]
+	if iv == nil {
+		iv = buf[:blockSize]
+	}
 	encryptData = buf[blockSize:]
 	origData := make([]byte, l-blockSize)
 
