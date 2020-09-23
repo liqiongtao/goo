@@ -39,7 +39,7 @@ func (r *gooRedis) new() {
 }
 
 func (r *gooRedis) ping() {
-	dur := 5 * time.Second
+	dur := 60 * time.Second
 	ti := time.NewTimer(dur)
 	defer ti.Stop()
 	for {

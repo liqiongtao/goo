@@ -44,7 +44,7 @@ func (db *gooDB) new() {
 }
 
 func (db *gooDB) ping() {
-	dur := 5 * time.Second
+	dur := 60 * time.Second
 	ti := time.NewTimer(dur)
 	defer ti.Stop()
 	for {
