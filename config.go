@@ -43,14 +43,11 @@ func (cf *gooConfig) load() error {
 	return nil
 }
 
-func LoadConfig(yamlFile string, conf interface{}) *gooConfig {
+func LoadConfig(yamlFile string, conf interface{}) error {
 	cf := &gooConfig{
 		ctx:      ctx,
 		yamlFile: yamlFile,
 		conf:     conf,
 	}
-	if err := cf.load(); err != nil {
-		panic(err.Error())
-	}
-	return cf
+	return cf.load()
 }
