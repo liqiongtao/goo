@@ -87,9 +87,6 @@ func (s *server) logger() gin.HandlerFunc {
 			c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(buf))
 			body = string(buf)
 		}
-		if body != "" {
-			body = strings.ReplaceAll(body, "\\", "")
-		}
 
 		c.Next()
 
