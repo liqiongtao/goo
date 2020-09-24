@@ -92,14 +92,12 @@ func (s *server) logger() gin.HandlerFunc {
 		switch c.ContentType() {
 		case "application/x-www-form-urlencoded", "application/json", "text/xml":
 			buf, _ := ioutil.ReadAll(c.Request.Body)
-			body = string(buf)
 			c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(buf))
+			body = string(buf)
 		}
 
 		if body != "" {
-			fmt.Println(body)
 			body = strings.ReplaceAll(body, "\\", "")
-			fmt.Println(body)
 		}
 
 		data := map[string]interface{}{
