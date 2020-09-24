@@ -3,7 +3,6 @@ package goo
 import (
 	"crypto/tls"
 	"io/ioutil"
-	"log"
 )
 
 type Tls struct {
@@ -18,7 +17,7 @@ func (this *Tls) CaCrt() []byte {
 	}
 	bts, err := ioutil.ReadFile(this.CaCrtFile)
 	if err != nil {
-		log.Println(err.Error())
+		Log.Error("[http-tls]", err.Error())
 	}
 	return bts
 }
@@ -26,7 +25,7 @@ func (this *Tls) CaCrt() []byte {
 func (this *Tls) ClientCrt() tls.Certificate {
 	crt, err := tls.LoadX509KeyPair(this.ClientCrtFile, this.ClientKeyFile)
 	if err != nil {
-		log.Println(err.Error())
+		Log.Error("[http-tls]", err.Error())
 	}
 	return crt
 }

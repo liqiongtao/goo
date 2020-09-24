@@ -3,7 +3,6 @@ package goo
 import (
 	"bytes"
 	"io"
-	"log"
 	"mime/multipart"
 	"os"
 	"path/filepath"
@@ -47,7 +46,7 @@ func Post(url string, data []byte) ([]byte, error) {
 func Upload(url, field, file string, data map[string]string) ([]byte, error) {
 	fh, err := os.Open(file)
 	if err != nil {
-		log.Println(err.Error())
+		Log.Error("[http-upload]", err.Error())
 		return nil, err
 	}
 	defer fh.Close()
@@ -56,11 +55,11 @@ func Upload(url, field, file string, data map[string]string) ([]byte, error) {
 	writer := multipart.NewWriter(body)
 	part, err := writer.CreateFormFile(field, filepath.Base(file))
 	if err != nil {
-		log.Println(err.Error())
+		Log.Error("[http-upload]", err.Error())
 		return nil, err
 	}
 	if _, err = io.Copy(part, fh); err != nil {
-		log.Println(err.Error())
+		Log.Error("[http-upload]", err.Error())
 		return nil, err
 	}
 
@@ -69,7 +68,7 @@ func Upload(url, field, file string, data map[string]string) ([]byte, error) {
 	}
 
 	if err = writer.Close(); err != nil {
-		log.Println(err.Error())
+		Log.Error("[http-upload]", err.Error())
 		return nil, err
 	}
 

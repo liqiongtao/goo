@@ -2,7 +2,6 @@ package goo
 
 import (
 	"fmt"
-	"log"
 	"xorm.io/core"
 )
 
@@ -11,35 +10,35 @@ type DBLogger struct {
 }
 
 func (l DBLogger) Debug(v ...interface{}) {
-	log.Println(v...)
+	Log.Debug(v...)
 }
 
 func (l DBLogger) Debugf(format string, v ...interface{}) {
-	log.Println(fmt.Sprintf(format, v...))
+	Log.Debug(fmt.Sprintf(format, v...))
 }
 
 func (l DBLogger) Error(v ...interface{}) {
-	log.Println(v...)
+	Log.Error(v...)
 }
 
 func (l DBLogger) Errorf(format string, v ...interface{}) {
-	log.Println(fmt.Sprintf(format, v...))
+	Log.Error(fmt.Sprintf(format, v...))
 }
 
 func (l DBLogger) Info(v ...interface{}) {
-	log.Println(v...)
+	Log.Info(v...)
 }
 
 func (l DBLogger) Infof(format string, v ...interface{}) {
-	log.Println(fmt.Sprintf(format, v...))
+	Log.Info(fmt.Sprintf(format, v...))
 }
 
 func (l DBLogger) Warn(v ...interface{}) {
-	log.Println(v...)
+	Log.Warn(v...)
 }
 
 func (l DBLogger) Warnf(format string, v ...interface{}) {
-	log.Println(fmt.Sprintf(format, v...))
+	Log.Warn(fmt.Sprintf(format, v...))
 }
 
 func (l DBLogger) Level() core.LogLevel {

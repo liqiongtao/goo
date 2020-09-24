@@ -4,7 +4,6 @@ import (
 	"context"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"log"
 	"time"
 )
 
@@ -24,7 +23,7 @@ func (cf *gooConfig) AutoReLoad(dur time.Duration) {
 				return
 			case <-ti.C:
 				if err := cf.load(); err != nil {
-					log.Println("[conf-load-err]", err.Error())
+					Log.Error("[conf-load]", err.Error())
 				}
 				ti.Reset(dur)
 			}
@@ -35,9 +34,11 @@ func (cf *gooConfig) AutoReLoad(dur time.Duration) {
 func (cf *gooConfig) load() error {
 	bts, err := ioutil.ReadFile(cf.yamlFile)
 	if err != nil {
+		Log.Error("[conf-load]", err.Error())
 		return err
 	}
 	if err := yaml.Unmarshal(bts, cf.conf); err != nil {
+		Log.Error("[conf-load]", err.Error())
 		return err
 	}
 	return nil

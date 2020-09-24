@@ -2,14 +2,14 @@ package goo
 
 import (
 	"encoding/json"
-	"log"
 )
 
 type Response struct {
-	Status  int         `json:"status"`
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
+	Status  int           `json:"status"`
+	Code    int           `json:"code"`
+	Message string        `json:"message"`
+	Data    interface{}   `json:"data"`
+	ErrMsg  []interface{} `json:"-"`
 }
 
 func (rsp *Response) String() string {
@@ -30,11 +30,11 @@ func Success(data interface{}) *Response {
 }
 
 func Error(code int, message string, v ...interface{}) *Response {
-	log.Println(v...)
 	return &Response{
 		Status:  0,
 		Code:    code,
 		Message: message,
 		Data:    map[string]string{},
+		ErrMsg:  v,
 	}
 }

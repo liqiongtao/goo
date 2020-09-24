@@ -3,7 +3,6 @@ package goo
 import (
 	"context"
 	"github.com/go-redis/redis"
-	"log"
 	"time"
 )
 
@@ -12,6 +11,7 @@ type RedisConfig struct {
 	Password string `yaml:"password"`
 	DB       int    `yaml:"db"`
 	Prefix   string `yaml:"prefix"`
+	AutoPing bool   `yaml:"auto_ping"`
 }
 
 type gooRedis struct {
@@ -26,7 +26,9 @@ func NewRedis(ctx context.Context, conf RedisConfig) *gooRedis {
 		conf: conf,
 	}
 	r.new()
-	go r.ping()
+	if conf.AutoPing {
+		go r.ping()
+	}
 	return r
 }
 
@@ -48,7 +50,7 @@ func (r *gooRedis) ping() {
 			return
 		case <-ti.C:
 			if err := r.client.Ping().Err(); err != nil {
-				log.Println("[redis-ping]", err.Error())
+				Log.Error("[redis-ping]", err.Error())
 			}
 			ti.Reset(dur)
 		}

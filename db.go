@@ -4,9 +4,18 @@ import (
 	"context"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/xorm"
-	"log"
 	"time"
 )
+
+type DBConfig struct {
+	Driver   string   `yaml:"driver"`
+	Master   string   `yaml:"master"`
+	Slaves   []string `yaml:"slaves"`
+	LogModel bool     `yaml:"log_model"`
+	MaxIdle  int      `yaml:"max_idle"`
+	MaxOpen  int      `yaml:"max_open"`
+	AutoPing bool     `yaml:"auto_ping"`
+}
 
 type gooDB struct {
 	ctx  context.Context
@@ -20,7 +29,9 @@ func NewDB(ctx context.Context, conf DBConfig) *gooDB {
 		conf: conf,
 	}
 	db.new()
-	go db.ping()
+	if conf.AutoPing {
+		go db.ping()
+	}
 	return db
 }
 
@@ -53,7 +64,7 @@ func (db *gooDB) ping() {
 			return
 		case <-ti.C:
 			if err := db.orm.Ping(); err != nil {
-				log.Println("[db-ping]", err.Error())
+				Log.Error("[db-ping]", err.Error())
 			}
 			ti.Reset(dur)
 		}
