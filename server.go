@@ -80,14 +80,6 @@ func (s *server) logger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 
-		c.Next()
-
-		if _, ok := s.noLogPaths[c.Request.URL.Path]; ok {
-			return
-		}
-
-		requestId++
-
 		body := ""
 		switch c.ContentType() {
 		case "application/x-www-form-urlencoded", "application/json", "text/xml":
@@ -95,10 +87,17 @@ func (s *server) logger() gin.HandlerFunc {
 			c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(buf))
 			body = string(buf)
 		}
-
 		if body != "" {
 			body = strings.ReplaceAll(body, "\\", "")
 		}
+
+		c.Next()
+
+		if _, ok := s.noLogPaths[c.Request.URL.Path]; ok {
+			return
+		}
+
+		requestId++
 
 		data := map[string]interface{}{
 			"method":              c.Request.Method,
