@@ -2,6 +2,7 @@ package goo
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
@@ -80,12 +81,18 @@ func (s *server) logger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 
-		body := ""
+		var body interface{}
 		switch c.ContentType() {
-		case "application/x-www-form-urlencoded", "application/json", "text/xml":
+		case "application/x-www-form-urlencoded", "text/xml":
 			buf, _ := ioutil.ReadAll(c.Request.Body)
 			c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(buf))
 			body = string(buf)
+		case "application/json":
+			buf, _ := ioutil.ReadAll(c.Request.Body)
+			c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(buf))
+			json.Unmarshal(buf, body)
+		default:
+			body = ""
 		}
 
 		c.Next()
