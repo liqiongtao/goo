@@ -23,11 +23,7 @@ func (li *logInfo) Json() []byte {
 	buf.WriteString(fmt.Sprintf(",\"level\":\"%s\"", logLevelMessages[li.level]))
 
 	bf, _ := json.Marshal(li.data)
-	str := string(bf)
-	if str != "" {
-		str = strings.ReplaceAll(str, "\\", "")
-	}
-	buf.WriteString(fmt.Sprintf(",\"context\":%s", str))
+	buf.WriteString(fmt.Sprintf(",\"context\":%s", string(bf)))
 
 	if li.level == level_error || li.level == level_warn {
 		ts := []string{}
