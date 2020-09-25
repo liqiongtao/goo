@@ -90,7 +90,7 @@ func (s *server) logger() gin.HandlerFunc {
 		case "application/json":
 			buf, _ := ioutil.ReadAll(c.Request.Body)
 			c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(buf))
-			json.Unmarshal(buf, body)
+			json.Unmarshal(buf, &body)
 		default:
 			body = ""
 		}
