@@ -14,7 +14,7 @@ type gooConfig struct {
 }
 
 func (cf *gooConfig) AutoReLoad(dur time.Duration) {
-	go func() {
+	AsyncFunc(func() {
 		ti := time.NewTimer(dur)
 		defer ti.Stop()
 		for {
@@ -28,7 +28,7 @@ func (cf *gooConfig) AutoReLoad(dur time.Duration) {
 				ti.Reset(dur)
 			}
 		}
-	}()
+	})
 }
 
 func (cf *gooConfig) load() error {

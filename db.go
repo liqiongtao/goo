@@ -30,7 +30,7 @@ func NewDB(ctx context.Context, conf DBConfig) *gooDB {
 	}
 	db.new()
 	if conf.AutoPing {
-		go db.ping()
+		AsyncFunc(db.ping)
 	}
 	return db
 }

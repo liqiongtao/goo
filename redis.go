@@ -27,7 +27,7 @@ func NewRedis(ctx context.Context, conf RedisConfig) *gooRedis {
 	}
 	r.new()
 	if conf.AutoPing {
-		go r.ping()
+		AsyncFunc(r.ping)
 	}
 	return r
 }
