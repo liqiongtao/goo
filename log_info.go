@@ -22,8 +22,11 @@ func (li *logInfo) Json() []byte {
 	buf.WriteString(fmt.Sprintf("\"datetime\":\"%s\"", time.Now().Format("2006-01-02 15:04:05")))
 	buf.WriteString(fmt.Sprintf(",\"level\":\"%s\"", logLevelMessages[li.level]))
 
-	bf, _ := json.Marshal(li.data)
-	buf.WriteString(fmt.Sprintf(",\"context\":%s", string(bf)))
+	bf := &bytes.Buffer{}
+	encoder := json.NewEncoder(bf)
+	encoder.SetEscapeHTML(false)
+	encoder.Encode(li.data)
+	buf.WriteString(fmt.Sprintf(",\"context\":%s", bf.String()))
 
 	if li.level == level_error || li.level == level_warn {
 		ts := []string{}
