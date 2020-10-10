@@ -1,10 +1,13 @@
 package utils
 
 import (
-	"strings"
-	"time"
+	"crypto/rand"
+	"encoding/hex"
+	"io"
 )
 
 func NonceStr() string {
-	return strings.ToLower(Id2Code(time.Now().UnixNano()))
+	bf := make([]byte, 8)
+	io.ReadFull(rand.Reader, bf)
+	return hex.EncodeToString(bf)
 }
