@@ -122,63 +122,77 @@ func AESCBCEncrypt(rawData, key, iv []byte) ([]byte, error) {
 
 	// block 大小 16
 	blockSize := block.BlockSize()
+
 	// 填充原文
 	rawData = pkcs7padding(rawData, blockSize)
 
-	// 定义、初始向量IV
-	cipherText := make([]byte, blockSize+len(rawData))
+	// 定义密码数据
+	var cipherData []byte
+
+	// 如果iv为空，生成随机iv，并附加到加密数据前面，否则单独生成加密数据
 	if iv == nil {
-		iv = cipherText[:blockSize]
+		// 初始化加密数据
+		cipherData = make([]byte, blockSize+len(rawData))
+		// 定义向量
+		iv = cipherData[:blockSize]
+		// 填充向量IV， ReadFull从rand.Reader精确地读取len(b)字节数据填充进iv，rand.Reader是一个全局、共享的密码用强随机数生成器
+		if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+			return nil, err
+		}
+		// 加密
+		mode := cipher.NewCBCEncrypter(block, iv)
+		mode.CryptBlocks(cipherData[blockSize:], rawData)
+	} else {
+		// 初始化加密数据
+		cipherData = make([]byte, len(rawData))
+		// 定义向量
+		iv = iv[:blockSize]
+		// 加密
+		mode := cipher.NewCBCEncrypter(block, iv)
+		mode.CryptBlocks(cipherData, rawData)
 	}
 
-	// 填充向量IV
-	// ReadFull从rand.Reader精确地读取len(b)字节数据填充进iv
-	// rand.Reader是一个全局、共享的密码用强随机数生成器
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		return nil, err
-	}
-
-	// 加密
-	mode := cipher.NewCBCEncrypter(block, iv)
-	mode.CryptBlocks(cipherText[blockSize:], rawData)
-
-	// 二进制 转 十六进制
-	encryptData := make([]byte, len(cipherText)*2)
-	hex.Encode(encryptData, cipherText)
-	return encryptData, nil
+	return cipherData, nil
 }
 
-func AESCBCDecrypt(encryptData, key, iv []byte) ([]byte, error) {
+func AESCBCDecrypt(cipherData, key, iv []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
 	}
 
-	// 十六进制 转 二进制
-	buf := make([]byte, len(encryptData)/2)
-	hex.Decode(buf, encryptData)
-
+	// block 大小 16
 	blockSize := block.BlockSize()
-	l := len(buf)
+
+	// 加密串长度
+	l := len(cipherData)
 
 	// 校验长度
 	if l < blockSize {
 		return nil, errors.New("encrypt data too short")
 	}
-	// 校验数据块
-	if l%blockSize != 0 {
-		return nil, errors.New("encrypt data is not a multiple of the block size")
-	}
 
+	// 定义原始数据
+	var origData []byte
+
+	// 如果iv为空，需要获取前16位作为随机iv
 	if iv == nil {
-		iv = buf[:blockSize]
+		// 定义向量
+		iv = cipherData[:blockSize]
+		// 定义真实加密串
+		cipherData = cipherData[blockSize:]
+		// 初始化原始数据
+		origData = make([]byte, l-blockSize)
+	} else {
+		// 定义向量
+		iv = iv[:blockSize]
+		// 初始化原始数据
+		origData = make([]byte, l)
 	}
-	encryptData = buf[blockSize:]
-	origData := make([]byte, l-blockSize)
 
 	// 解密
 	mode := cipher.NewCBCDecrypter(block, iv)
-	mode.CryptBlocks(origData, encryptData)
+	mode.CryptBlocks(origData, cipherData)
 	origData = pkcs7unpadding(origData)
 
 	return origData, nil
