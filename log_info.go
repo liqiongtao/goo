@@ -16,29 +16,35 @@ type logInfo struct {
 }
 
 func (li *logInfo) Json() []byte {
-	info := map[string]interface{}{
-		"datetime": time.Now().Format("2006-01-02 15:04:05"),
-		"level":    logLevelMessages[li.level],
-		"context":  li.data,
-	}
+	var buf bytes.Buffer
+
+	buf.WriteString("{")
+	buf.WriteString(fmt.Sprintf("\"datetime\":\"%s\"", time.Now().Format("2006-01-02 15:04:05")))
+	buf.WriteString(fmt.Sprintf(",\"level\":\"%s\"", logLevelMessages[li.level]))
+
+	cbf := &bytes.Buffer{}
+	encoder := json.NewEncoder(cbf)
+	encoder.SetEscapeHTML(false)
+	encoder.Encode(li.data)
+	cbf.Truncate(cbf.Len() - 1)
+	buf.WriteString(fmt.Sprintf(",\"context\":%s", cbf.String()))
 
 	if li.level == level_error || li.level == level_warn {
 		trace := []string{}
-		for i := 4; i < 8; i++ {
+		for i := 3; i < 8; i++ {
 			_, file, line, _ := runtime.Caller(i)
 			if file == "" || strings.Index(file, "runtime") > 0 {
 				continue
 			}
 			f, _ := filepath.Rel(filepath.Dir(file), file)
-			trace = append(trace, fmt.Sprintf("%s[%dL]", f, line))
+			trace = append(trace, fmt.Sprintf("%s %dL", f, line))
 		}
-		info["trace"] = trace
+		tbf, _ := json.Marshal(trace)
+		buf.WriteString(fmt.Sprintf(",\"trace\":%s", string(tbf)))
 	}
 
-	bf := &bytes.Buffer{}
-	encoder := json.NewEncoder(bf)
-	encoder.SetEscapeHTML(false)
-	encoder.Encode(info)
+	buf.WriteString("}")
+	buf.WriteString("\n")
 
-	return bf.Bytes()
+	return buf.Bytes()
 }
