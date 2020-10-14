@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"io"
 	"mime/multipart"
-	"os"
-	"path/filepath"
 )
 
 const (
@@ -47,22 +45,15 @@ func PostJson(url string, data []byte) ([]byte, error) {
 	return NewRequest().JsonContentType().Post(url, data)
 }
 
-func Upload(url, field, file string, data map[string]string) ([]byte, error) {
-	fh, err := os.Open(file)
-	if err != nil {
-		Log.Error("[http-upload]", err.Error())
-		return nil, err
-	}
-	defer fh.Close()
-
+func Upload(url, field, fileName string, f io.Reader, data map[string]string) ([]byte, error) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile(field, filepath.Base(file))
+	part, err := writer.CreateFormFile(field, fileName)
 	if err != nil {
 		Log.Error("[http-upload]", err.Error())
 		return nil, err
 	}
-	if _, err = io.Copy(part, fh); err != nil {
+	if _, err = io.Copy(part, f); err != nil {
 		Log.Error("[http-upload]", err.Error())
 		return nil, err
 	}
