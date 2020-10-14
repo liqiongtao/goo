@@ -43,6 +43,10 @@ func Post(url string, data []byte) ([]byte, error) {
 	return NewRequest().Post(url, data)
 }
 
+func PostJson(url string, data []byte) ([]byte, error) {
+	return NewRequest().JsonContentType().Post(url, data)
+}
+
 func Upload(url, field, file string, data map[string]string) ([]byte, error) {
 	fh, err := os.Open(file)
 	if err != nil {
