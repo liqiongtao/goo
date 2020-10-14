@@ -117,13 +117,13 @@ func (s *server) logger() gin.HandlerFunc {
 			"referer":             c.GetHeader("Referer"),
 			"execution-time":      fmt.Sprintf("%dms", (time.Now().UnixNano()-start.UnixNano())/1e6),
 		}
-		Log.Debug(fmt.Sprintf("[api-request][%d]", requestId), data)
+		Log.Debug(fmt.Sprintf("api-request-%d", requestId), data)
 
 		rsp, ok := c.Get("response")
 		if ok {
-			Log.Debug(fmt.Sprintf("[api-response][%d]", requestId), rsp)
+			Log.Debug(fmt.Sprintf("api-response-%d", requestId), rsp)
 			if errMsg := rsp.(*Response).ErrMsg; len(errMsg) > 0 {
-				Log.Error(fmt.Sprintf("[api-response-err][%d]", requestId), errMsg)
+				Log.Error(fmt.Sprintf("api-response-err-%d", requestId), errMsg)
 			}
 		}
 	}
