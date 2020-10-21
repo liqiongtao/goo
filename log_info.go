@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"os"
 	"runtime"
 	"strings"
 	"time"
@@ -29,7 +30,10 @@ func (li *logInfo) Json() []byte {
 	buf.WriteString(fmt.Sprintf(",\"context\":%s", cbf.String()))
 
 	if li.level == level_error || li.level == level_warn {
-		trace := []string{}
+		pwd, _ := os.Getwd()
+		trace := []string{
+			pwd,
+		}
 		for i := 3; i < 8; i++ {
 			_, file, line, _ := runtime.Caller(i)
 			if file == "" || strings.Index(file, "runtime") > 0 {
