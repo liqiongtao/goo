@@ -36,8 +36,7 @@ func (li *logInfo) Json() []byte {
 			if file == "" || strings.Index(file, "runtime") > 0 {
 				continue
 			}
-			f, _ := filepath.Rel(filepath.Dir(file), file)
-			trace = append(trace, fmt.Sprintf("%s %dL", f, line))
+			trace = append(trace, fmt.Sprintf("%s %dL", file, line))
 		}
 		tbf, _ := json.Marshal(trace)
 		buf.WriteString(fmt.Sprintf(",\"trace\":%s", string(tbf)))

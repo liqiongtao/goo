@@ -6,7 +6,8 @@ type iLogger interface {
 }
 
 type logger struct {
-	logger iLogger
+	logger  iLogger
+	baseDir string
 }
 
 func NewLogger(adapter iLogger) *logger {
@@ -35,4 +36,8 @@ func (l *logger) Warn(v ...interface{}) {
 
 func (l *logger) Info(v ...interface{}) {
 	l.logger.output(level_info, v...)
+}
+
+func (l *logger) SetBaseDir(baseDir string) {
+	l.baseDir = baseDir
 }
