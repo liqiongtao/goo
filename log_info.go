@@ -34,10 +34,13 @@ func (li *logInfo) Json() []byte {
 		trace := []string{}
 		for i := 3; i < 8; i++ {
 			_, file, line, _ := runtime.Caller(i)
-			if file == "" || strings.Index(file, "runtime") > 0 {
+			if file == "" ||
+				strings.Index(file, "runtime") > 0 ||
+				strings.Index(file, "pkg/mod") > 0 ||
+				strings.Index(file, "vendor") > 0 {
 				continue
 			}
-			file = strings.Replace(file, pwd, "", 0)
+			file = strings.Replace(file, pwd, "", -1)
 			trace = append(trace, fmt.Sprintf("%s %dL", file, line))
 		}
 		tbf, _ := json.Marshal(trace)
