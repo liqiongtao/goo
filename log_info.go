@@ -33,6 +33,7 @@ func (li *logInfo) Json() []byte {
 		trace := []string{}
 		for i := 3; i < 16; i++ {
 			_, file, line, _ := runtime.Caller(i)
+			fmt.Println(">>>>>>>", file)
 			if file == "" ||
 				strings.Index(file, "runtime") > 0 ||
 				strings.Index(file, "pkg/mod") > 0 ||
