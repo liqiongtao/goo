@@ -31,7 +31,7 @@ func (li *logInfo) Json() []byte {
 
 	if li.level == level_error || li.level == level_warn {
 		pwd, _ := os.Getwd()
-		trace := []string{}
+		trace := []string{pwd}
 		for i := 3; i < 8; i++ {
 			_, file, line, _ := runtime.Caller(i)
 			if file == "" ||

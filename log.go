@@ -18,4 +18,4 @@ var (
 	}
 )
 
-var Log = NewLogger(newFileLogger())
+var Log = NewLogger(newFileLogger(""))

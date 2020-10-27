@@ -14,25 +14,27 @@ import (
 
 type fileLogger struct {
 	Dir          string
+	Filename     string
 	Perm         uint32
 	MaxSize      int64
 	CurrSize     int64
 	CurrNum      int
 	MaxDays      int
 	Writer       *os.File
-	filename     string
+	fileFullName string
 	fileBaseName string
 	mu           sync.RWMutex
 	ctx          context.Context
 }
 
-func newFileLogger() iLogger {
+func newFileLogger(filename string) iLogger {
 	return &fileLogger{
-		Dir:     "logs/",
-		Perm:    0755,
-		MaxSize: 300 * 1024 * 1024,
-		MaxDays: 15,
-		ctx:     ctx,
+		Dir:      "logs/",
+		Filename: filename,
+		Perm:     0755,
+		MaxSize:  300 * 1024 * 1024,
+		MaxDays:  15,
+		ctx:      ctx,
 	}
 }
 
@@ -91,16 +93,19 @@ func (lf *fileLogger) output(level int, v ...interface{}) {
 
 func (lf *fileLogger) createLogFile() {
 	lf.fileBaseName = time.Now().Format("20060102")
-	lf.filename = fmt.Sprintf("%s%s.log", lf.Dir, lf.fileBaseName)
+	if lf.Filename != "" {
+		lf.fileBaseName = fmt.Sprintf("%s_%s", lf.Filename)
+	}
+	lf.fileFullName = fmt.Sprintf("%s%s.log", lf.Dir, lf.fileBaseName)
 
 	var err error
-	lf.Writer, err = os.OpenFile(lf.filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, os.FileMode(lf.Perm))
+	lf.Writer, err = os.OpenFile(lf.fileFullName, os.O_WRONLY|os.O_APPEND|os.O_CREATE, os.FileMode(lf.Perm))
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
 
-	os.Chmod(lf.filename, os.FileMode(lf.Perm))
+	os.Chmod(lf.fileFullName, os.FileMode(lf.Perm))
 }
 
 func (lf *fileLogger) dailyRotate() {
@@ -133,7 +138,7 @@ func (lf *fileLogger) fileSizeRotate() {
 
 	newFile := fmt.Sprintf("%s%s.%02d.log", lf.Dir, lf.fileBaseName, lf.CurrNum)
 
-	if err := os.Rename(lf.filename, newFile); err != nil {
+	if err := os.Rename(lf.fileFullName, newFile); err != nil {
 		log.Println(err.Error())
 		return
 	}

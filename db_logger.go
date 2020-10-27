@@ -5,40 +5,42 @@ import (
 	"xorm.io/core"
 )
 
+var dbLog = NewLogger(newFileLogger("sql"))
+
 type DBLogger struct {
 	LogLevel core.LogLevel
 }
 
 func (l DBLogger) Debug(v ...interface{}) {
-	Log.Debug(v...)
+	dbLog.Debug(v...)
 }
 
 func (l DBLogger) Debugf(format string, v ...interface{}) {
-	Log.Debug(fmt.Sprintf(format, v...))
+	dbLog.Debug(fmt.Sprintf(format, v...))
 }
 
 func (l DBLogger) Error(v ...interface{}) {
-	Log.Error(v...)
+	dbLog.Error(v...)
 }
 
 func (l DBLogger) Errorf(format string, v ...interface{}) {
-	Log.Error(fmt.Sprintf(format, v...))
+	dbLog.Error(fmt.Sprintf(format, v...))
 }
 
 func (l DBLogger) Info(v ...interface{}) {
-	Log.Info(v...)
+	dbLog.Info(v...)
 }
 
 func (l DBLogger) Infof(format string, v ...interface{}) {
-	Log.Info(fmt.Sprintf(format, v...))
+	dbLog.Info(fmt.Sprintf(format, v...))
 }
 
 func (l DBLogger) Warn(v ...interface{}) {
-	Log.Warn(v...)
+	dbLog.Warn(v...)
 }
 
 func (l DBLogger) Warnf(format string, v ...interface{}) {
-	Log.Warn(fmt.Sprintf(format, v...))
+	dbLog.Warn(fmt.Sprintf(format, v...))
 }
 
 func (l DBLogger) Level() core.LogLevel {
