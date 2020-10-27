@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"path"
 	"runtime"
 	"strings"
 	"time"
@@ -30,10 +29,14 @@ func (li *logInfo) Json() []byte {
 	buf.WriteString(fmt.Sprintf(",\"context\":%s", cbf.String()))
 
 	if li.level == level_error || li.level == level_warn {
+		baseDir := ""
 		trace := []string{}
-		for i := 3; i < 16; i++ {
+		for i := 3; i < 12; i++ {
 			_, file, line, _ := runtime.Caller(i)
-			fmt.Println(">>>>>>>", file)
+			if index := strings.Index(file, "vendor"); baseDir == "" && index > 0 {
+				baseDir = file[:index]
+				continue
+			}
 			if file == "" ||
 				strings.Index(file, "runtime") > 0 ||
 				strings.Index(file, "pkg/mod") > 0 ||
@@ -42,14 +45,11 @@ func (li *logInfo) Json() []byte {
 			}
 			trace = append(trace, fmt.Sprintf("%s %dL", file, line))
 		}
-		if l := len(trace); l > 0 {
-			baseDir := path.Dir(trace[l-1]) + "/"
-			for index, s := range trace {
-				trace[index] = strings.Replace(s, baseDir, "", -1)
-			}
-			tbf, _ := json.Marshal(trace)
-			buf.WriteString(fmt.Sprintf(",\"trace\":%s", string(tbf)))
+		for index, s := range trace {
+			trace[index] = strings.Replace(s, baseDir, "", -1)
 		}
+		tbf, _ := json.Marshal(trace)
+		buf.WriteString(fmt.Sprintf(",\"trace\":%s", string(tbf)))
 	}
 
 	buf.WriteString("}")
