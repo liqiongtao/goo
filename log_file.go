@@ -94,7 +94,7 @@ func (lf *fileLogger) output(level int, v ...interface{}) {
 func (lf *fileLogger) createLogFile() {
 	lf.fileBaseName = time.Now().Format("20060102")
 	if lf.Filename != "" {
-		lf.fileBaseName = fmt.Sprintf("%s_%s", lf.Filename)
+		lf.fileBaseName = fmt.Sprintf("%s_%s", lf.Filename, lf.fileBaseName)
 	}
 	lf.fileFullName = fmt.Sprintf("%s%s.log", lf.Dir, lf.fileBaseName)
 
