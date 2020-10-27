@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"os"
 	"runtime"
 	"strings"
 	"time"
@@ -30,7 +29,6 @@ func (li *logInfo) Json() []byte {
 	buf.WriteString(fmt.Sprintf(",\"context\":%s", cbf.String()))
 
 	if li.level == level_error || li.level == level_warn {
-		pwd, _ := os.Getwd()
 		trace := []string{}
 		for i := 3; i < 16; i++ {
 			_, file, line, _ := runtime.Caller(i)
@@ -40,7 +38,9 @@ func (li *logInfo) Json() []byte {
 				strings.Index(file, "vendor") > 0 {
 				continue
 			}
-			file = strings.Replace(file, pwd, "", -1)
+			if baseDir := ctx.Value("baseDir").(string); baseDir != "" {
+				file = strings.Replace(file, baseDir, "", -1)
+			}
 			trace = append(trace, fmt.Sprintf("%s %dL", file, line))
 		}
 		tbf, _ := json.Marshal(trace)
