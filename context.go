@@ -2,8 +2,11 @@ package goo
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
+	"path"
+	"runtime"
 	"syscall"
 )
 
@@ -27,4 +30,14 @@ func init() {
 			}
 		}
 	})
+}
+
+func SetBasePath(basePath string) {
+	ctx = context.WithValue(ctx, "basePath", basePath)
+}
+
+func BasePath() string {
+	_, file, _, _ := runtime.Caller(1)
+	fmt.Println("------------------", path.Dir(file))
+	return ""
 }
