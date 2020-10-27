@@ -23,7 +23,7 @@ func LINE() int {
 
 func DIR() string {
 	_, file, _, _ := runtime.Caller(1)
-	return path.Dir(file)
+	return path.Dir(file) + "/"
 }
 
 func Trace() []string {
