@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"os"
+	"path"
 	"runtime"
 )
 
@@ -20,9 +21,13 @@ func LINE() int {
 	return line
 }
 
+func DIR() string {
+	return path.Dir(FILE())
+}
+
 func Trace() []string {
 	ts := []string{}
-	for i := 1; i < 8; i++ {
+	for i := 0; i < 12; i++ {
 		_, file, line, _ := runtime.Caller(i)
 		ts = append(ts, fmt.Sprintf("%s %dL", file, line))
 	}
