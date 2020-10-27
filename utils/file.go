@@ -21,7 +21,7 @@ func LINE() int {
 	return line
 }
 
-func Dir() string {
+func DIR() string {
 	_, file, _, _ := runtime.Caller(1)
 	return path.Dir(file)
 }
