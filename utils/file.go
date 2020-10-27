@@ -21,13 +21,14 @@ func LINE() int {
 	return line
 }
 
-func DIR() string {
-	return path.Dir(FILE())
+func Dir() string {
+	_, file, _, _ := runtime.Caller(1)
+	return path.Dir(file)
 }
 
 func Trace() []string {
 	ts := []string{}
-	for i := 0; i < 12; i++ {
+	for i := 1; i < 12; i++ {
 		_, file, line, _ := runtime.Caller(i)
 		ts = append(ts, fmt.Sprintf("%s %dL", file, line))
 	}
