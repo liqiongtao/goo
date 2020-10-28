@@ -40,8 +40,9 @@ func (l *logger) Info(v ...interface{}) {
 	l.output(level_info, v...)
 }
 
-func (l *logger) Use(fn hookFunc) {
+func (l *logger) Use(fn hookFunc) *logger {
 	l.hookFuncList = append(l.hookFuncList, fn)
+	return l
 }
 
 func (l *logger) output(level int, v ...interface{}) {
