@@ -2,11 +2,14 @@ package goo
 
 type iLogger interface {
 	init()
-	output(level int, v ...interface{})
+	output(buf []byte)
 }
 
+type hookFunc func(level string, message string)
+
 type logger struct {
-	logger iLogger
+	logger       iLogger
+	hookFuncList []hookFunc
 }
 
 func NewLogger(adapter iLogger) *logger {
@@ -18,21 +21,45 @@ func NewLogger(adapter iLogger) *logger {
 }
 
 func (l *logger) Debug(v ...interface{}) {
-	l.logger.output(level_debug, v...)
+	l.output(level_debug, v...)
 }
 
 func (l *logger) Error(v ...interface{}) {
-	l.logger.output(level_error, v...)
+	l.output(level_error, v...)
 }
 
 func (l *logger) Success(v ...interface{}) {
-	l.logger.output(level_success, v...)
+	l.output(level_success, v...)
 }
 
 func (l *logger) Warn(v ...interface{}) {
-	l.logger.output(level_warn, v...)
+	l.output(level_warn, v...)
 }
 
 func (l *logger) Info(v ...interface{}) {
-	l.logger.output(level_info, v...)
+	l.output(level_info, v...)
+}
+
+func (l *logger) Use(fn hookFunc) {
+	l.hookFuncList = append(l.hookFuncList, fn)
+}
+
+func (l *logger) output(level int, v ...interface{}) {
+	li := &logInfo{
+		level: level,
+		data:  v,
+	}
+	buf := li.Json()
+
+	AsyncFunc(l.hook(level, string(buf)))
+
+	l.logger.output(buf)
+}
+
+func (l *logger) hook(level int, message string) func() {
+	return func() {
+		for _, fn := range l.hookFuncList {
+			fn(logLevelMessages[level], message)
+		}
+	}
 }

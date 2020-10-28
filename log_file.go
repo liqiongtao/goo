@@ -66,7 +66,7 @@ func (lf *fileLogger) init() {
 	go lf.delOldLog()
 }
 
-func (lf *fileLogger) output(level int, v ...interface{}) {
+func (lf *fileLogger) output(buf []byte) {
 	if lf.Writer == nil {
 		return
 	}
@@ -78,12 +78,6 @@ func (lf *fileLogger) output(level int, v ...interface{}) {
 		lf.fileSizeRotate()
 	}
 
-	li := &logInfo{
-		level: level,
-		data:  v,
-	}
-
-	buf := li.Json()
 	lf.CurrSize += int64(len(string(buf)))
 
 	if _, err := lf.Writer.Write(buf); err != nil {
