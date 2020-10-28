@@ -5,7 +5,7 @@ type iLogger interface {
 	output(buf []byte)
 }
 
-type hookFunc func(level string, message string)
+type hookFunc func(level, message string)
 
 type logger struct {
 	logger       iLogger
