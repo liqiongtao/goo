@@ -47,6 +47,7 @@ func NewServer() *server {
 func (s *server) Run(addr string) {
 	pid := fmt.Sprintf("%d", os.Getpid())
 	if err := ioutil.WriteFile(".pid", []byte(pid), 0755); err != nil {
+		Log.Error(err.Error())
 		panic(err.Error())
 	}
 	endless.NewServer(addr, s.Engine).ListenAndServe()
@@ -76,7 +77,7 @@ func (*server) cors() gin.HandlerFunc {
 }
 
 func (s *server) logger() gin.HandlerFunc {
-	var requestId = 1000
+	var traceId = 1000
 
 	return func(c *gin.Context) {
 		start := time.Now()
@@ -101,7 +102,8 @@ func (s *server) logger() gin.HandlerFunc {
 			return
 		}
 
-		requestId++
+		traceId++
+		c.Set("__traceId", traceId)
 
 		data := map[string]interface{}{
 			"method":              c.Request.Method,
@@ -117,13 +119,13 @@ func (s *server) logger() gin.HandlerFunc {
 			"referer":             c.GetHeader("Referer"),
 			"execution-time":      fmt.Sprintf("%dms", (time.Now().UnixNano()-start.UnixNano())/1e6),
 		}
-		Log.Debug(fmt.Sprintf("api-request-%d", requestId), data)
+		Log.Debug(fmt.Sprintf("api-request-%d", traceId), data)
 
 		rsp, ok := c.Get("response")
 		if ok {
-			Log.Debug(fmt.Sprintf("api-response-%d", requestId), rsp)
+			Log.Debug(fmt.Sprintf("api-response-%d", traceId), rsp)
 			if errMsg := rsp.(*Response).ErrMsg; len(errMsg) > 0 {
-				Log.Error(fmt.Sprintf("api-response-err-%d", requestId), errMsg)
+				Log.Error(fmt.Sprintf("api-response-err-%d", traceId), errMsg)
 			}
 		}
 	}
@@ -133,7 +135,9 @@ func (s *server) recovery() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
-				c.AbortWithStatusJSON(200, Error(500, fmt.Sprint(err)))
+				rsp := Error(500, fmt.Sprint(err))
+				Log.Error(fmt.Sprintf("api-response-err-%d", c.GetInt64("__traceId")), rsp)
+				c.AbortWithStatusJSON(200, rsp)
 			}
 		}()
 		c.Next()
