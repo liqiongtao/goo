@@ -19,7 +19,7 @@ type iController interface {
 func Handler(controller iController) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		rsp := controller.DoHandle(c)
-		c.Set("response", rsp)
+		c.Set("__response", rsp)
 		if rsp == nil {
 			return
 		}
@@ -105,29 +105,33 @@ func (s *server) logger() gin.HandlerFunc {
 		traceId++
 		c.Set("__traceId", traceId)
 
-		data := map[string]interface{}{
-			"method":              c.Request.Method,
-			"uri":                 c.Request.RequestURI,
-			"body":                body,
-			"authorization":       c.GetHeader("Authorization"),
-			"x-request-id":        c.GetHeader("X-Request-Id"),
-			"x-request-source":    c.GetHeader("X-Request-Source"),
-			"x-request-timestamp": c.GetHeader("X-Request-Timestamp"),
-			"x-request-sign":      c.GetHeader("X-Request-Sign"),
-			"content-type":        c.ContentType(),
-			"client-ip":           c.ClientIP(),
-			"referer":             c.GetHeader("Referer"),
-			"execution-time":      fmt.Sprintf("%dms", (time.Now().UnixNano()-start.UnixNano())/1e6),
+		data := gin.H{
+			"trace-id": traceId,
+			"request": gin.H{
+				"method":              c.Request.Method,
+				"uri":                 c.Request.RequestURI,
+				"body":                body,
+				"authorization":       c.GetHeader("Authorization"),
+				"x-request-id":        c.GetHeader("X-Request-Id"),
+				"x-request-source":    c.GetHeader("X-Request-Source"),
+				"x-request-timestamp": c.GetHeader("X-Request-Timestamp"),
+				"x-request-sign":      c.GetHeader("X-Request-Sign"),
+				"content-type":        c.ContentType(),
+				"client-ip":           c.ClientIP(),
+				"referer":             c.GetHeader("Referer"),
+				"execution-time":      fmt.Sprintf("%dms", (time.Now().UnixNano()-start.UnixNano())/1e6),
+			},
 		}
-		Log.Debug(fmt.Sprintf("api-request-%d", traceId), data)
 
-		rsp, ok := c.Get("response")
+		rsp, ok := c.Get("__response")
 		if ok {
-			Log.Debug(fmt.Sprintf("api-response-%d", traceId), rsp)
+			data["response"] = rsp
 			if errMsg := rsp.(*Response).ErrMsg; len(errMsg) > 0 {
-				Log.Error(fmt.Sprintf("api-response-err-%d", traceId), errMsg)
+				data["err_msg"] = errMsg
 			}
 		}
+
+		Log.Debug(data)
 	}
 }
 
@@ -136,7 +140,7 @@ func (s *server) recovery() gin.HandlerFunc {
 		defer func() {
 			if err := recover(); err != nil {
 				rsp := Error(500, fmt.Sprint(err))
-				Log.Error(fmt.Sprintf("api-response-err-%d", c.GetInt64("__traceId")), rsp)
+				c.Set("__response", rsp)
 				c.AbortWithStatusJSON(200, rsp)
 			}
 		}()
