@@ -71,12 +71,21 @@ func (db *gooDB) ping() {
 	}
 }
 
-var __db *gooDB
+var __db = map[string]*gooDB{}
 
-func DB() *xorm.EngineGroup {
-	return __db.orm
+func DB(names ...string) *xorm.EngineGroup {
+	if l := len(names); l == 0 || names[0] == "" {
+		return __db["default"].orm
+	}
+	return __db[names[0]].orm
 }
 
 func DBInit(conf DBConfig) {
-	__db = NewDB(ctx, conf)
+	__db["default"] = NewDB(ctx, conf)
+}
+
+func DBSInit(confs map[string]DBConfig) {
+	for name, conf := range confs {
+		__db[name] = NewDB(ctx, conf)
+	}
 }
