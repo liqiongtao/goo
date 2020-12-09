@@ -125,7 +125,7 @@ func (s *server) logger() gin.HandlerFunc {
 
 		if rsp, ok := c.Get("__response"); ok {
 			data["response"] = rsp
-			if rsp != nil {
+			if rsp.(*Response) != nil {
 				if errMsg := rsp.(*Response).ErrMsg; len(errMsg) > 0 {
 					data["err_msg"] = errMsg
 				}
