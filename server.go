@@ -126,9 +126,9 @@ func (s *server) logger() gin.HandlerFunc {
 		rspi, ok := c.Get("__response")
 		if ok {
 			data["response"] = rspi
-				if rsp := rspi.(*Response); len(rsp.ErrMsg) > 0 {
-					data["err_msg"] = rsp.ErrMsg
-				}
+			if rsp := rspi.(*Response); len(rsp.ErrMsg) > 0 {
+				data["err_msg"] = rsp.ErrMsg
+			}
 		}
 
 		Log.Debug(data)
