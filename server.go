@@ -123,10 +123,12 @@ func (s *server) logger() gin.HandlerFunc {
 			},
 		}
 
-		if rspi, ok := c.Get("__response"); ok {
-			data["response"] = rspi
-			if rsp := rspi.(*Response); len(rsp.ErrMsg) > 0 {
-				data["err_msg"] = rsp.ErrMsg
+		if rsp, ok := c.Get("__response"); ok {
+			data["response"] = rsp
+			if rsp != nil {
+				if errMsg := rsp.(*Response).ErrMsg; len(errMsg) > 0 {
+					data["err_msg"] = errMsg
+				}
 			}
 		}
 
