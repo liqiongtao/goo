@@ -10,7 +10,7 @@ import (
 )
 
 type GrpcServer struct {
-	serviceName string
+	ServiceName string
 	Server      *grpc.Server
 	lis         net.Listener
 	consul      *Consul
@@ -23,7 +23,7 @@ func NewGrpcServer(port int64, serviceName string, consul *Consul) (*GrpcServer,
 	}
 
 	return &GrpcServer{
-		serviceName: serviceName,
+		ServiceName: serviceName,
 		Server:      grpc.NewServer(),
 		lis:         lis,
 		consul:      consul,
@@ -41,7 +41,7 @@ func (s *GrpcServer) registerHealthServer() {
 }
 
 func (s *GrpcServer) registerToConsul() {
-	if err := s.consul.ServiceRegister(s.serviceName); err != nil {
+	if err := s.consul.ServiceRegister(s.ServiceName); err != nil {
 		log.Fatalln(err.Error())
 	}
 }
