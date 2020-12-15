@@ -1,21 +1,15 @@
 package goo
 
-const (
-	level_debug = iota
-	level_error
-	level_success
-	level_warn
-	level_info
+import (
+	"github.com/liqiongtao/goo/logger"
 )
 
-var (
-	logLevelMessages = map[int]string{
-		level_debug:   "DEBUG",
-		level_error:   "ERROR",
-		level_success: "SUCCESS",
-		level_warn:    "WARN",
-		level_info:    "INFO",
-	}
-)
+var Log = logger.NewFileLogger("logs/", "")
 
-var Log = NewLogger(newFileLogger(""))
+func NewLogger() *logger.Logger {
+	return new(logger.Logger)
+}
+
+func NewFileLogger(filePath, fileName string) *logger.FileLogger {
+	return logger.NewFileLogger(filePath, fileName)
+}

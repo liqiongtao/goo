@@ -4,9 +4,13 @@ import (
 	"testing"
 )
 
-func TestLog(t *testing.T) {
-	Log.Error("this is debug<p>1+1=2;2-1=1;</p>", []string{"this is debug"}, map[string]interface{}{
-		"name":   "hnatao",
-		"gender": 1,
-	})
+func TestLogDebug(t *testing.T) {
+	for i := 0; i < 10; i++ {
+		Log.WithField("id", 100).
+			WithField("name", "hnatao").
+			WithField("info", map[string]interface{}{"user": "hnatao"}).
+			WithField("likes", []string{"sing", "pingpong"}).
+			Debug()
+		// time.Sleep(time.Second)
+	}
 }

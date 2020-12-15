@@ -8,13 +8,15 @@ import (
 )
 
 type DBConfig struct {
-	Driver   string   `yaml:"driver"`
-	Master   string   `yaml:"master"`
-	Slaves   []string `yaml:"slaves"`
-	LogModel bool     `yaml:"log_model"`
-	MaxIdle  int      `yaml:"max_idle"`
-	MaxOpen  int      `yaml:"max_open"`
-	AutoPing bool     `yaml:"auto_ping"`
+	Driver      string   `yaml:"driver"`
+	Master      string   `yaml:"master"`
+	Slaves      []string `yaml:"slaves"`
+	LogModel    bool     `yaml:"log_model"`
+	MaxIdle     int      `yaml:"max_idle"`
+	MaxOpen     int      `yaml:"max_open"`
+	AutoPing    bool     `yaml:"auto_ping"`
+	logFilePath string   `yaml:"log_file_path"`
+	logFileName string   `yaml:"log_file_name"`
 }
 
 type gooDB struct {
@@ -28,14 +30,14 @@ func NewDB(ctx context.Context, conf DBConfig) *gooDB {
 		ctx:  ctx,
 		conf: conf,
 	}
-	db.new()
+	db.new(conf.logFilePath, conf.logFileName)
 	if conf.AutoPing {
 		AsyncFunc(db.ping)
 	}
 	return db
 }
 
-func (db *gooDB) new() {
+func (db *gooDB) new(logFilePath, logFileName string) {
 	conns := []string{db.conf.Master}
 	if n := len(db.conf.Slaves); n > 0 {
 		conns = append(conns, db.conf.Slaves...)
@@ -47,7 +49,13 @@ func (db *gooDB) new() {
 		panic(err.Error())
 	}
 
-	db.orm.SetLogger(&DBLogger{})
+	if logFilePath == "" {
+		logFilePath = "logs/"
+	}
+	if logFileName == "" {
+		logFileName = "sql.log"
+	}
+	db.orm.SetLogger(newDBLogger(logFilePath, logFileName))
 
 	db.orm.ShowSQL(db.conf.LogModel)
 	db.orm.SetMaxIdleConns(db.conf.MaxIdle)

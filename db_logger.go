@@ -2,45 +2,51 @@ package goo
 
 import (
 	"fmt"
+	"github.com/liqiongtao/goo/logger"
 	"xorm.io/core"
 )
 
-var dbLog = NewLogger(newFileLogger("sql"))
-
 type DBLogger struct {
 	LogLevel core.LogLevel
+	l        *logger.FileLogger
+}
+
+func newDBLogger(logFilePath, logFileName string) *DBLogger {
+	return &DBLogger{
+		l: NewFileLogger(logFilePath, logFileName),
+	}
 }
 
 func (l DBLogger) Debug(v ...interface{}) {
-	dbLog.Debug(v...)
+	l.l.Debug(v...)
 }
 
 func (l DBLogger) Debugf(format string, v ...interface{}) {
-	dbLog.Debug(fmt.Sprintf(format, v...))
+	l.l.Debug(fmt.Sprintf(format, v...))
 }
 
 func (l DBLogger) Error(v ...interface{}) {
-	dbLog.Error(v...)
+	l.l.Error(v...)
 }
 
 func (l DBLogger) Errorf(format string, v ...interface{}) {
-	dbLog.Error(fmt.Sprintf(format, v...))
+	l.l.Error(fmt.Sprintf(format, v...))
 }
 
 func (l DBLogger) Info(v ...interface{}) {
-	dbLog.Info(v...)
+	l.l.Info(v...)
 }
 
 func (l DBLogger) Infof(format string, v ...interface{}) {
-	dbLog.Info(fmt.Sprintf(format, v...))
+	l.l.Info(fmt.Sprintf(format, v...))
 }
 
 func (l DBLogger) Warn(v ...interface{}) {
-	dbLog.Warn(v...)
+	l.l.Warn(v...)
 }
 
 func (l DBLogger) Warnf(format string, v ...interface{}) {
-	dbLog.Warn(fmt.Sprintf(format, v...))
+	l.l.Warn(fmt.Sprintf(format, v...))
 }
 
 func (l DBLogger) Level() core.LogLevel {
