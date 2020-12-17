@@ -1,12 +1,22 @@
 package goo
 
 import (
+	"sync"
 	"testing"
 )
 
 func TestLogDebug(t *testing.T) {
-	Log.WithField("name", "hnatao").Debug("1111")
-	Log.Debug("2222")
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		Log.WithField("name", "hnatao").Debug("1111")
+	}()
+	go func() {
+		defer wg.Done()
+		Log.Debug("2222")
+	}()
+	wg.Wait()
 }
 
 func TestLogDebug2(t *testing.T) {
