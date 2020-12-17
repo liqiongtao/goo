@@ -5,6 +5,10 @@ import (
 )
 
 func TestLogDebug(t *testing.T) {
+	Log.Debug("1111")
+}
+
+func TestLogDebug2(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		Log.WithField("id", 100).
 			WithField("name", "hnatao").

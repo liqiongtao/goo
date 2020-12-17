@@ -19,9 +19,9 @@ func (l *Logger) log(level Level, args ...interface{}) {
 	l.mu.Lock()
 	l.mu.Unlock()
 
-	l.v["level"] = strings.ToLower(LevelText[level])
-	l.v["time"] = time.Now().Format("2006-01-02 15:04:05")
-	l.v["msg"] = fmt.Sprint(args...)
+	l.WithField("level", strings.ToLower(LevelText[level]))
+	l.WithField("time", time.Now().Format("2006-01-02 15:04:05"))
+	l.WithField("msg", fmt.Sprint(args...))
 
 	buf, _ := json.Marshal(l.v)
 	buf = append(buf, []byte("\n")...)
