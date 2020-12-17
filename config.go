@@ -46,7 +46,7 @@ func (cf *gooConfig) load() error {
 
 func LoadConfig(yamlFile string, conf interface{}) error {
 	cf := &gooConfig{
-		ctx:      ctx,
+		ctx:      Context,
 		yamlFile: yamlFile,
 		conf:     conf,
 	}

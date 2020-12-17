@@ -8,36 +8,31 @@ import (
 )
 
 var (
-	sig         = make(chan os.Signal)
-	ctx, cancel = context.WithCancel(context.Background())
-	Context     = ctx
+	sigs            = make(chan os.Signal)
+	Context, cancel = context.WithCancel(context.Background())
 )
 
 func init() {
-	signal.Notify(sig, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGUSR1, syscall.SIGUSR2)
+	signal.Notify(sigs, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGUSR1, syscall.SIGUSR2)
 
 	AsyncFunc(func() {
-		for si := range sig {
-			switch si {
+		for sig := range sigs {
+			switch sig {
 			case syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT:
 				cancel()
-				break
+				return
 			case syscall.SIGUSR1:
 			case syscall.SIGUSR2:
-			default:
 			}
 		}
 	})
-}
 
-func SetBasePath(basePath string) {
-	ctx = context.WithValue(ctx, "basePath", basePath)
-}
-
-func BasePath() string {
-	v := ctx.Value("basePath")
-	if v == nil {
-		return ""
-	}
-	return v.(string)
+	AsyncFunc(func() {
+		for {
+			select {
+			case <-Context.Done():
+				os.Exit(0)
+			}
+		}
+	})
 }

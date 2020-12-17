@@ -89,11 +89,11 @@ func DB(names ...string) *xorm.EngineGroup {
 }
 
 func DBInit(conf DBConfig) {
-	__db["default"] = NewDB(ctx, conf)
+	__db["default"] = NewDB(Context, conf)
 }
 
 func DBSInit(confs map[string]DBConfig) {
 	for name, conf := range confs {
-		__db[name] = NewDB(ctx, conf)
+		__db[name] = NewDB(Context, conf)
 	}
 }

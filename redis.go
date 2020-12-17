@@ -64,5 +64,5 @@ func Redis() *redis.Client {
 }
 
 func RedisInit(conf RedisConfig) {
-	__redis = NewRedis(ctx, conf)
+	__redis = NewRedis(Context, conf)
 }
