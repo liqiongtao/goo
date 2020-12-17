@@ -5,7 +5,8 @@ import (
 )
 
 func TestLogDebug(t *testing.T) {
-	Log.Debug("1111")
+	Log.WithField("name", "hnatao").Debug("1111")
+	Log.Debug("2222")
 }
 
 func TestLogDebug2(t *testing.T) {
