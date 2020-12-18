@@ -2,6 +2,7 @@ package goo
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/hashicorp/consul/api"
 )
 
@@ -39,26 +40,24 @@ func (c *Consul) Get(key string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	if kvp == nil {
+		return nil, errors.New("invalid key")
+	}
 	return kvp.Value, nil
 }
 
 func (c *Consul) ServiceRegister(key string) error {
-	client, err := c.Client()
-	if err != nil {
-		return err
-	}
-
-	kvp, _, err := client.KV().Get(key, nil)
+	buf, err := c.Get(key)
 	if err != nil {
 		return err
 	}
 
 	service := new(api.AgentServiceRegistration)
-	if err := json.Unmarshal(kvp.Value, service); err != nil {
+	if err := json.Unmarshal(buf, service); err != nil {
 		return err
 	}
 
-	return client.Agent().ServiceRegister(service)
+	return c.client.Agent().ServiceRegister(service)
 }
 
 func (c *Consul) ServiceDeregister(serviceID string) error {
