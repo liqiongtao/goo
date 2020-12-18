@@ -21,7 +21,7 @@ func NewGRPCServer(port int64, opts ...Option) *GRPCServer {
 	s := &GRPCServer{
 		Server: grpc.NewServer(grpc_middleware.WithUnaryServerChain(GRPCInterceptor)),
 		options: map[string]Option{
-			"port": NewOption(grpcServerPort, port),
+			grpcServerPort: NewOption(grpcServerPort, port),
 		},
 	}
 	for _, opt := range opts {
@@ -39,6 +39,9 @@ func (s *GRPCServer) serviceName() string {
 }
 
 func (s *GRPCServer) consul() *Consul {
+	if s.options[grpcConsul].Value == nil {
+		return nil
+	}
 	return s.options[grpcConsul].Value.(*Consul)
 }
 
