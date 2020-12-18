@@ -26,9 +26,12 @@ func DIR() string {
 	return path.Dir(file) + "/"
 }
 
-func Trace() []string {
+func Trace(skip int) []string {
 	ts := []string{}
-	for i := 1; i < 12; i++ {
+	if skip == 0 {
+		skip = 2
+	}
+	for i := skip; i < 12; i++ {
 		_, file, line, _ := runtime.Caller(i)
 		ts = append(ts, fmt.Sprintf("%s %dL", file, line))
 	}

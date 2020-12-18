@@ -10,22 +10,11 @@ func TestLogDebug(t *testing.T) {
 	wg.Add(2)
 	go func() {
 		defer wg.Done()
-		Log.WithField("name", "hnatao").Debug("1111")
+		Log.WithField("name", "hnatao").Debug("this id debug")
 	}()
 	go func() {
 		defer wg.Done()
-		Log.Debug("2222")
+		Log.Info("this is info")
 	}()
 	wg.Wait()
-}
-
-func TestLogDebug2(t *testing.T) {
-	for i := 0; i < 10; i++ {
-		Log.WithField("id", 100).
-			WithField("name", "hnatao").
-			WithField("info", map[string]interface{}{"user": "hnatao"}).
-			WithField("likes", []string{"sing", "pingpong"}).
-			Debug()
-		// time.Sleep(time.Second)
-	}
 }
