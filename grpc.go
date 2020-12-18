@@ -18,9 +18,12 @@ type GRPCServer struct {
 }
 
 func NewGRPCServer(port int, opts ...Option) *GRPCServer {
-	s := &GRPCServer{options: map[string]Option{
-		"port": NewOption(grpcServerPort, port),
-	}}
+	s := &GRPCServer{
+		Server: grpc.NewServer(grpc_middleware.WithUnaryServerChain(GRPCInterceptor)),
+		options: map[string]Option{
+			"port": NewOption(grpcServerPort, port),
+		},
+	}
 	for _, opt := range opts {
 		opt.Apply(s.options)
 	}
@@ -44,7 +47,6 @@ func (s *GRPCServer) Serve() error {
 	if err != nil {
 		return err
 	}
-	s.Server = grpc.NewServer(grpc_middleware.WithUnaryServerChain(GRPCInterceptor))
 	s.registerHealthServer()
 	s.registerToConsul()
 	go func() {
