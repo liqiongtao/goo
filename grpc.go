@@ -39,7 +39,7 @@ func NewGRPCServer(port int64, serviceName string, consul *Consul) (*GRPCServer,
 
 func (s *GRPCServer) Serve() error {
 	defer func() {
-		log.Println(fmt.Sprintf("server running %d", os.Getpid()))
+		log.Println(fmt.Sprintf("server running %s, pid=%d", s.lis.Addr().String(), os.Getpid()))
 	}()
 	s.registerHealthServer()
 	s.registerToConsul()
