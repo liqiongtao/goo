@@ -26,32 +26,32 @@ func (fl *FileLogger) WithField(key string, value interface{}) *Logger {
 	return l.WithField(key, value)
 }
 
-func (fl *FileLogger) Debug(args ...interface{}) {
+func (fl *FileLogger) Debug(v ...interface{}) {
 	l := &Logger{Adapter: fl.adapter}
-	l.log(DEBUG, args...)
+	l.Debug(v...)
 }
 
-func (fl *FileLogger) Info(args ...interface{}) {
+func (fl *FileLogger) Info(v ...interface{}) {
 	l := &Logger{Adapter: fl.adapter}
-	l.log(INFO, args...)
+	l.Info(v...)
 }
 
-func (fl *FileLogger) Warn(args ...interface{}) {
+func (fl *FileLogger) Warn(v ...interface{}) {
 	l := &Logger{Adapter: fl.adapter}
-	l.log(WARN, args...)
+	l.Warn(v...)
 }
 
-func (fl *FileLogger) Error(args ...interface{}) {
+func (fl *FileLogger) Error(v ...interface{}) {
 	l := &Logger{Adapter: fl.adapter}
-	l.log(ERROR, args...)
+	l.Error(v...)
 }
 
-func (fl *FileLogger) Panic(args ...interface{}) {
+func (fl *FileLogger) Panic(v ...interface{}) {
 	l := &Logger{Adapter: fl.adapter}
-	l.log(PANIC, args...)
+	l.Panic(v...)
 }
 
-func (fl *FileLogger) Fatal(args ...interface{}) {
+func (fl *FileLogger) Fatal(v ...interface{}) {
 	l := &Logger{Adapter: fl.adapter}
-	l.log(FATAL, args...)
+	l.Fatal(v...)
 }

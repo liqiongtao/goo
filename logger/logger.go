@@ -3,6 +3,7 @@ package logger
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -70,4 +71,5 @@ func (l *Logger) Panic(args ...interface{}) {
 
 func (l *Logger) Fatal(args ...interface{}) {
 	l.log(FATAL, args...)
+	os.Exit(0)
 }
