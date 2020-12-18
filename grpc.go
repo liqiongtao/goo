@@ -47,7 +47,7 @@ func (s *GRPCServer) registerHealthServer() {
 }
 
 func (s *GRPCServer) registerToConsul() {
-	if s.ServiceName == "" {
+	if s.ServiceName == "" || s.consul == nil {
 		return
 	}
 	if err := s.consul.ServiceRegister(s.ServiceName); err != nil {
