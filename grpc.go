@@ -13,37 +13,44 @@ import (
 )
 
 type GRPCServer struct {
-	ServiceName string
-	Server      *grpc.Server
-	lis         net.Listener
-	consul      *Consul
+	Server  *grpc.Server
+	options map[string]Option
 }
 
-func NewGRPCServer(port int64, serviceName string, consul *Consul) (*GRPCServer, error) {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
-	if err != nil {
-		return nil, err
+func NewGRPCServer(port int, opts ...Option) *GRPCServer {
+	s := &GRPCServer{options: map[string]Option{
+		"port": NewOption(grpcServerPort, port),
+	}}
+	for _, opt := range opts {
+		opt.Apply(s.options)
 	}
+	return s
+}
 
-	opts := []grpc.ServerOption{
-		grpc_middleware.WithUnaryServerChain(grpcInterceptor),
-	}
+func (s *GRPCServer) address() string {
+	return fmt.Sprintf(":%d", s.options[grpcServerPort].Int())
+}
 
-	return &GRPCServer{
-		ServiceName: serviceName,
-		Server:      grpc.NewServer(opts...),
-		lis:         lis,
-		consul:      consul,
-	}, nil
+func (s *GRPCServer) serviceName() string {
+	return s.options[grpcServiceName].String()
+}
+
+func (s *GRPCServer) consul() *Consul {
+	return s.options[grpcConsul].Value.(*Consul)
 }
 
 func (s *GRPCServer) Serve() error {
-	go func() {
-		log.Println(fmt.Sprintf("server running %s, pid=%d", s.lis.Addr().String(), os.Getpid()))
-	}()
+	lis, err := net.Listen("tcp", s.address())
+	if err != nil {
+		return err
+	}
+	s.Server = grpc.NewServer(grpc_middleware.WithUnaryServerChain(GRPCInterceptor))
 	s.registerHealthServer()
 	s.registerToConsul()
-	return s.Server.Serve(s.lis)
+	go func() {
+		log.Println(fmt.Sprintf("server running %s, pid=%d", lis.Addr().String(), os.Getpid()))
+	}()
+	return s.Server.Serve(lis)
 }
 
 func (s *GRPCServer) registerHealthServer() {
@@ -51,15 +58,15 @@ func (s *GRPCServer) registerHealthServer() {
 }
 
 func (s *GRPCServer) registerToConsul() {
-	if s.ServiceName == "" || s.consul == nil {
+	if s.serviceName() == "" || s.consul() == nil {
 		return
 	}
-	if err := s.consul.ServiceRegister(s.ServiceName); err != nil {
+	if err := s.consul().ServiceRegister(s.serviceName()); err != nil {
 		log.Fatalln(err.Error())
 	}
 }
 
-func grpcInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (rsp interface{}, err error) {
+func GRPCInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (rsp interface{}, err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			Log.WithField("grpc-method", info.FullMethod).
