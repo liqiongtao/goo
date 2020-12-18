@@ -17,7 +17,7 @@ type GRPCServer struct {
 	options map[string]Option
 }
 
-func NewGRPCServer(port int, opts ...Option) *GRPCServer {
+func NewGRPCServer(port int64, opts ...Option) *GRPCServer {
 	s := &GRPCServer{
 		Server: grpc.NewServer(grpc_middleware.WithUnaryServerChain(GRPCInterceptor)),
 		options: map[string]Option{
@@ -31,7 +31,7 @@ func NewGRPCServer(port int, opts ...Option) *GRPCServer {
 }
 
 func (s *GRPCServer) address() string {
-	return fmt.Sprintf(":%d", s.options[grpcServerPort].Int())
+	return fmt.Sprintf(":%d", s.options[grpcServerPort].Int64())
 }
 
 func (s *GRPCServer) serviceName() string {
