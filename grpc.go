@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"log"
 	"net"
+	"os"
 	"runtime/debug"
 )
 
@@ -37,6 +38,9 @@ func NewGRPCServer(port int64, serviceName string, consul *Consul) (*GRPCServer,
 }
 
 func (s *GRPCServer) Serve() error {
+	defer func() {
+		log.Println(fmt.Sprintf("server running %d", os.Getpid()))
+	}()
 	s.registerHealthServer()
 	s.registerToConsul()
 	return s.Server.Serve(s.lis)
