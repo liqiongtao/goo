@@ -11,14 +11,14 @@ import (
 	"runtime/debug"
 )
 
-type GrpcServer struct {
+type GRPCServer struct {
 	ServiceName string
 	Server      *grpc.Server
 	lis         net.Listener
 	consul      *Consul
 }
 
-func NewGrpcServer(port int64, serviceName string, consul *Consul) (*GrpcServer, error) {
+func NewGRPCServer(port int64, serviceName string, consul *Consul) (*GRPCServer, error) {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return nil, err
@@ -28,7 +28,7 @@ func NewGrpcServer(port int64, serviceName string, consul *Consul) (*GrpcServer,
 		grpc_middleware.WithUnaryServerChain(grpcInterceptor),
 	}
 
-	return &GrpcServer{
+	return &GRPCServer{
 		ServiceName: serviceName,
 		Server:      grpc.NewServer(opts...),
 		lis:         lis,
@@ -36,17 +36,20 @@ func NewGrpcServer(port int64, serviceName string, consul *Consul) (*GrpcServer,
 	}, nil
 }
 
-func (s *GrpcServer) Serve() error {
+func (s *GRPCServer) Serve() error {
 	s.registerHealthServer()
 	s.registerToConsul()
 	return s.Server.Serve(s.lis)
 }
 
-func (s *GrpcServer) registerHealthServer() {
-	grpc_health_v1.RegisterHealthServer(s.Server, &Health{})
+func (s *GRPCServer) registerHealthServer() {
+	grpc_health_v1.RegisterHealthServer(s.Server, &GRPCHealth{})
 }
 
-func (s *GrpcServer) registerToConsul() {
+func (s *GRPCServer) registerToConsul() {
+	if s.ServiceName == "" {
+		return
+	}
 	if err := s.consul.ServiceRegister(s.ServiceName); err != nil {
 		log.Fatalln(err.Error())
 	}
@@ -77,14 +80,14 @@ func grpcInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServe
 	return
 }
 
-type Health struct{}
+type GRPCHealth struct{}
 
-func (Health) Check(context.Context, *grpc_health_v1.HealthCheckRequest) (*grpc_health_v1.HealthCheckResponse, error) {
+func (GRPCHealth) Check(context.Context, *grpc_health_v1.HealthCheckRequest) (*grpc_health_v1.HealthCheckResponse, error) {
 	return &grpc_health_v1.HealthCheckResponse{
 		Status: grpc_health_v1.HealthCheckResponse_SERVING,
 	}, nil
 }
 
-func (Health) Watch(*grpc_health_v1.HealthCheckRequest, grpc_health_v1.Health_WatchServer) error {
+func (GRPCHealth) Watch(*grpc_health_v1.HealthCheckRequest, grpc_health_v1.Health_WatchServer) error {
 	return nil
 }
