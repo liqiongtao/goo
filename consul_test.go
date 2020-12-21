@@ -12,11 +12,11 @@ func TestConsulKV(t *testing.T) {
 }
 
 func TestConsulServiceRegister(t *testing.T) {
-	c := NewConsul("http://dc.weflys.com", "xz", "xz527")
-	c.ServiceRegister("xz/services/base-auth-test")
+	c := NewConsul("", "", "")
+	c.ServiceRegister("")
 }
 
 func TestConsulServiceDeregister(t *testing.T) {
-	c := NewConsul("http://dc.weflys.com", "xz", "xz527")
-	c.ServiceDeregister("base_auth_test")
+	c := NewConsul("", "", "")
+	c.ServiceDeregister("")
 }
