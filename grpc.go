@@ -6,10 +6,6 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health/grpc_health_v1"
-	"io/ioutil"
-	"log"
-	"net"
-	"os"
 )
 
 type GRPCServer struct {
@@ -46,28 +42,11 @@ func (s *GRPCServer) consul() *Consul {
 }
 
 func (s *GRPCServer) Serve() error {
-	lis, err := net.Listen("tcp", s.address())
-	if err != nil {
-		return err
-	}
 	s.registerHealthServer()
 	s.registerToConsul()
-	AsyncFunc(func() {
-		log.Println(fmt.Sprintf("server running %s, pid=%d", lis.Addr().String(), os.Getpid()))
-		pid := fmt.Sprintf("%d", os.Getpid())
-		if err := ioutil.WriteFile(".pid", []byte(pid), 0644); err != nil {
-			Log.Panic(err.Error())
-		}
-	})
-	AsyncFunc(func() {
-		for {
-			select {
-			case <-Context.Done():
-				os.Exit(0)
-			}
-		}
-	})
-	return s.Server.Serve(lis)
+
+	g := NewGRPCGraceful("tcp", s.address(), s.Server)
+	return g.Serve()
 }
 
 func (s *GRPCServer) registerHealthServer() {

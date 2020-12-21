@@ -14,7 +14,6 @@ var (
 
 func init() {
 	signal.Notify(sigs, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGUSR1, syscall.SIGUSR2)
-
 	AsyncFunc(func() {
 		for sig := range sigs {
 			switch sig {
