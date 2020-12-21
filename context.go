@@ -27,12 +27,12 @@ func init() {
 		}
 	})
 
-	AsyncFunc(func() {
-		for {
-			select {
-			case <-Context.Done():
-				os.Exit(0)
-			}
-		}
-	})
+	// AsyncFunc(func() {
+	// 	for {
+	// 		select {
+	// 		case <-Context.Done():
+	// 			os.Exit(0)
+	// 		}
+	// 	}
+	// })
 }
