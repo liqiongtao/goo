@@ -26,10 +26,6 @@ func (l *Logger) log(level Level, args ...interface{}) {
 	l.WithField("time", time.Now().Format("2006-01-02 15:04:05"))
 	l.WithField("msg", fmt.Sprint(args...))
 
-	if level >= ERROR {
-
-	}
-
 	buf, _ := json.Marshal(l.v)
 	buf = append(buf, []byte("\n")...)
 
