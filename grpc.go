@@ -51,9 +51,17 @@ func (s *GRPCServer) Serve() error {
 	}
 	s.registerHealthServer()
 	s.registerToConsul()
-	go func() {
+	AsyncFunc(func() {
 		log.Println(fmt.Sprintf("server running %s, pid=%d", lis.Addr().String(), os.Getpid()))
-	}()
+	})
+	AsyncFunc(func() {
+		for {
+			select {
+			case <-Context.Done():
+				os.Exit(0)
+			}
+		}
+	})
 	return s.Server.Serve(lis)
 }
 
