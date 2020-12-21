@@ -88,7 +88,7 @@ func GRPCInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServe
 		}
 	}()
 	rsp, err = handler(ctx, req)
-	if info.FullMethod != "/grpc.health.v1.Health/Check" {
+	if info.FullMethod == "/grpc.health.v1.Health/Check" {
 		return
 	}
 	if err == nil {
