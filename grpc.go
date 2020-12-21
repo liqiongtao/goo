@@ -9,7 +9,6 @@ import (
 	"log"
 	"net"
 	"os"
-	"runtime/debug"
 )
 
 type GRPCServer struct {
@@ -67,7 +66,7 @@ func (s *GRPCServer) registerToConsul() {
 		return
 	}
 	if err := s.consul().ServiceRegister(s.serviceName()); err != nil {
-		log.Fatalln(err.Error())
+		Log.Fatal(err.Error())
 	}
 }
 
@@ -76,7 +75,7 @@ func GRPCInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServe
 		if e := recover(); e != nil {
 			Log.WithField("grpc-method", info.FullMethod).
 				WithField("grep-request", req).
-				WithField("error-stack", string(debug.Stack())).
+				Trace().
 				Error(fmt.Sprintf("%v", e))
 		}
 	}()
@@ -90,7 +89,7 @@ func GRPCInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServe
 		Log.WithField("grpc-method", info.FullMethod).
 			WithField("grpc-request", req).
 			WithField("grpc-response", rsp).
-			WithField("error-stack", string(debug.Stack())).
+			Trace().
 			Error(err.Error())
 	}
 	return

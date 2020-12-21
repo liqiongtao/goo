@@ -72,7 +72,7 @@ func (db *gooDB) ping() {
 			return
 		case <-ti.C:
 			if err := db.orm.Ping(); err != nil {
-				Log.Error("[db-ping]", err.Error())
+				Log.Error(err.Error())
 			}
 			ti.Reset(dur)
 		}

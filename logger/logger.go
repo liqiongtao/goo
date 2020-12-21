@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
@@ -24,6 +25,10 @@ func (l *Logger) log(level Level, args ...interface{}) {
 	l.WithField("level", strings.ToLower(LevelText[level]))
 	l.WithField("time", time.Now().Format("2006-01-02 15:04:05"))
 	l.WithField("msg", fmt.Sprint(args...))
+
+	if level >= ERROR {
+
+	}
 
 	buf, _ := json.Marshal(l.v)
 	buf = append(buf, []byte("\n")...)
@@ -49,6 +54,11 @@ func (l *Logger) WithField(key string, value interface{}) *Logger {
 	return l
 }
 
+func (l *Logger) Trace() *Logger {
+	l.WithField("trace", string(debug.Stack()))
+	return l
+}
+
 func (l *Logger) Debug(args ...interface{}) {
 	l.log(DEBUG, args...)
 }
@@ -67,6 +77,7 @@ func (l *Logger) Error(args ...interface{}) {
 
 func (l *Logger) Panic(args ...interface{}) {
 	l.log(PANIC, args...)
+	panic(fmt.Sprint(args...))
 }
 
 func (l *Logger) Fatal(args ...interface{}) {

@@ -50,11 +50,11 @@ func Upload(url, field, fileName string, f io.Reader, data map[string]string) ([
 	writer := multipart.NewWriter(body)
 	part, err := writer.CreateFormFile(field, fileName)
 	if err != nil {
-		Log.Error("[http-upload]", err.Error())
+		Log.Trace().Error(err.Error())
 		return nil, err
 	}
 	if _, err = io.Copy(part, f); err != nil {
-		Log.Error("[http-upload]", err.Error())
+		Log.Trace().Error(err.Error())
 		return nil, err
 	}
 
@@ -63,7 +63,7 @@ func Upload(url, field, fileName string, f io.Reader, data map[string]string) ([
 	}
 
 	if err = writer.Close(); err != nil {
-		Log.Error("[http-upload]", err.Error())
+		Log.Trace().Error(err.Error())
 		return nil, err
 	}
 

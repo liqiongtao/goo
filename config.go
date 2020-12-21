@@ -23,7 +23,7 @@ func (cf *gooConfig) AutoReLoad(dur time.Duration) {
 				return
 			case <-ti.C:
 				if err := cf.load(); err != nil {
-					Log.Error("[conf-load]", err.Error())
+					Log.Trace().Error(err.Error())
 				}
 				ti.Reset(dur)
 			}
@@ -34,11 +34,11 @@ func (cf *gooConfig) AutoReLoad(dur time.Duration) {
 func (cf *gooConfig) load() error {
 	bts, err := ioutil.ReadFile(cf.yamlFile)
 	if err != nil {
-		Log.Error("[conf-load]", err.Error())
+		Log.Trace().Error(err.Error())
 		return err
 	}
 	if err := yaml.Unmarshal(bts, cf.conf); err != nil {
-		Log.Error("[conf-load]", err.Error())
+		Log.Trace().Error(err.Error())
 		return err
 	}
 	return nil

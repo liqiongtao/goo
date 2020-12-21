@@ -47,7 +47,7 @@ func (r *Request) getClient() *http.Client {
 func (r *Request) Do(method, url string, body io.Reader) ([]byte, error) {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
-		Log.Error("[http-request]", err.Error())
+		Log.Trace().Error(err.Error())
 		return nil, err
 	}
 
@@ -57,7 +57,7 @@ func (r *Request) Do(method, url string, body io.Reader) ([]byte, error) {
 
 	rsp, err := r.getClient().Do(req)
 	if err != nil {
-		Log.Error("[http-request]", err.Error())
+		Log.Trace().Error( err.Error())
 		return nil, err
 	}
 
@@ -65,7 +65,7 @@ func (r *Request) Do(method, url string, body io.Reader) ([]byte, error) {
 
 	buf, err := ioutil.ReadAll(rsp.Body)
 	if err != nil {
-		Log.Error("[http-request]", err.Error())
+		Log.Trace().Error(err.Error())
 		return nil, err
 	}
 

@@ -31,6 +31,11 @@ func (fl *FileLogger) WithField(key string, value interface{}) *Logger {
 	return l.WithField(key, value)
 }
 
+func (fl *FileLogger) Trace() *Logger {
+	l := &Logger{Adapter: fl.adapter, hooks: fl.hooks}
+	return l.Trace()
+}
+
 func (fl *FileLogger) Debug(v ...interface{}) {
 	l := &Logger{Adapter: fl.adapter, hooks: fl.hooks}
 	l.Debug(v...)

@@ -47,8 +47,7 @@ func NewServer() *server {
 func (s *server) Run(addr string) {
 	pid := fmt.Sprintf("%d", os.Getpid())
 	if err := ioutil.WriteFile(".pid", []byte(pid), 0755); err != nil {
-		Log.Error(err.Error())
-		panic(err.Error())
+		Log.Panic(err.Error())
 	}
 	endless.NewServer(addr, s.Engine).ListenAndServe()
 }
@@ -105,34 +104,29 @@ func (s *server) logger() gin.HandlerFunc {
 		traceId++
 		c.Set("__traceId", traceId)
 
-		data := gin.H{
-			"trace-id": traceId,
-			"request": gin.H{
-				"method":              c.Request.Method,
-				"uri":                 c.Request.RequestURI,
-				"body":                body,
-				"authorization":       c.GetHeader("Authorization"),
-				"x-request-id":        c.GetHeader("X-Request-Id"),
-				"x-request-source":    c.GetHeader("X-Request-Source"),
-				"x-request-timestamp": c.GetHeader("X-Request-Timestamp"),
-				"x-request-sign":      c.GetHeader("X-Request-Sign"),
-				"content-type":        c.ContentType(),
-				"client-ip":           c.ClientIP(),
-				"referer":             c.GetHeader("Referer"),
-				"execution-time":      fmt.Sprintf("%dms", (time.Now().UnixNano()-start.UnixNano())/1e6),
-			},
-		}
-
-		if rsp, ok := c.Get("__response"); ok {
-			data["response"] = rsp
-			if rsp.(*Response) != nil {
-				if errMsg := rsp.(*Response).ErrMsg; len(errMsg) > 0 {
-					data["err_msg"] = errMsg
+		defer func() {
+			l := Log.WithField("trace-id", traceId).
+				WithField("request-method", c.Request.Method).
+				WithField("request-uri", c.Request.RequestURI).
+				WithField("request-body", body).
+				WithField("authorization", c.GetHeader("Authorization")).
+				WithField("x-request-id", c.GetHeader("X-Request-Id")).
+				WithField("x-request-source", c.GetHeader("X-Request-Source")).
+				WithField("x-request-sign", c.GetHeader("X-Request-Sign")).
+				WithField("content-type", c.ContentType()).
+				WithField("client-ip", c.ClientIP()).
+				WithField("referer", c.GetHeader("Referer")).
+				WithField("execution-time", fmt.Sprintf("%dms", (time.Now().UnixNano()-start.UnixNano())/1e6))
+			if rsp, ok := c.Get("__response"); rsp != nil && ok {
+				l.WithField("response", rsp)
+				if rsp.(*Response) != nil {
+					if errMsg := rsp.(*Response).ErrMsg; len(errMsg) > 0 {
+						l.WithField("response_error_msg", errMsg)
+					}
 				}
 			}
-		}
-
-		Log.Debug(data)
+			l.Info()
+		}()
 	}
 }
 
