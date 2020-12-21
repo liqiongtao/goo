@@ -6,6 +6,7 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health/grpc_health_v1"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -53,6 +54,10 @@ func (s *GRPCServer) Serve() error {
 	s.registerToConsul()
 	AsyncFunc(func() {
 		log.Println(fmt.Sprintf("server running %s, pid=%d", lis.Addr().String(), os.Getpid()))
+		pid := fmt.Sprintf("%d", os.Getpid())
+		if err := ioutil.WriteFile(".pid", []byte(pid), 0644); err != nil {
+			Log.Panic(err.Error())
+		}
 	})
 	AsyncFunc(func() {
 		for {

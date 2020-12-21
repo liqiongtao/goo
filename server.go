@@ -46,7 +46,7 @@ func NewServer() *server {
 
 func (s *server) Run(addr string) {
 	pid := fmt.Sprintf("%d", os.Getpid())
-	if err := ioutil.WriteFile(".pid", []byte(pid), 0755); err != nil {
+	if err := ioutil.WriteFile(".pid", []byte(pid), 0644); err != nil {
 		Log.Panic(err.Error())
 	}
 	endless.NewServer(addr, s.Engine).ListenAndServe()
