@@ -36,6 +36,7 @@ func Trace(skip int) []string {
 		_, file, line, _ := runtime.Caller(i)
 		if file == "" ||
 			strings.Index(file, "runtime") > 0 ||
+			strings.Index(file, "src/testing") > 0 ||
 			strings.Index(file, "pkg/mod") > 0 ||
 			strings.Index(file, "vendor") > 0 {
 			continue

@@ -37,6 +37,7 @@ func TestLogHook(t *testing.T) {
 }
 
 func TestLogTrace(t *testing.T) {
+	Log.SetTrimPaths("/usr/local")
 	Log.Error("this is error")
 	Log.Trace().Debug("this is debug")
 }

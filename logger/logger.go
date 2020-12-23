@@ -11,10 +11,11 @@ import (
 )
 
 type Logger struct {
-	mu      sync.Mutex
-	v       map[string]interface{}
-	hooks   []func(level Level, buf []byte)
-	Adapter Adapter
+	mu        sync.Mutex
+	v         map[string]interface{}
+	hooks     []func(level Level, buf []byte)
+	trimPaths []string
+	Adapter   Adapter
 }
 
 func (l *Logger) log(level Level, args ...interface{}) {
@@ -42,6 +43,10 @@ func (l *Logger) log(level Level, args ...interface{}) {
 	}
 }
 
+func (l *Logger) SetTrimPaths(trimPaths ...string) {
+	l.trimPaths = trimPaths
+}
+
 func (l *Logger) AddHook(fn func(level Level, buf []byte)) {
 	l.hooks = append(l.hooks, fn)
 }
@@ -55,8 +60,15 @@ func (l *Logger) WithField(key string, value interface{}) *Logger {
 }
 
 func (l *Logger) Trace() *Logger {
-	fmt.Println(utils.DIR())
-	l.WithField("trace", utils.Trace(2))
+	arr := utils.Trace(2)
+	if len(l.trimPaths) > 0 {
+		for index, item := range arr {
+			for _, trimPath := range l.trimPaths {
+				arr[index] = strings.Replace(item, trimPath, "", -1)
+			}
+		}
+	}
+	l.WithField("trace", arr)
 	return l
 }
 
