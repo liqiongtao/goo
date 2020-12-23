@@ -67,7 +67,6 @@ func GRPCInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServe
 		if e := recover(); e != nil {
 			Log.WithField("grpc-method", info.FullMethod).
 				WithField("grep-request", req).
-				Trace().
 				Error(fmt.Sprintf("%v", e))
 		}
 	}()
@@ -84,7 +83,6 @@ func GRPCInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServe
 		Log.WithField("grpc-method", info.FullMethod).
 			WithField("grpc-request", req).
 			WithField("grpc-response", rsp).
-			Trace().
 			Error(err.Error())
 	}
 	return

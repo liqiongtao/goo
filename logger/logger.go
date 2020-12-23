@@ -3,8 +3,8 @@ package logger
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/liqiongtao/goo/utils"
 	"os"
-	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
@@ -25,6 +25,10 @@ func (l *Logger) log(level Level, args ...interface{}) {
 	l.WithField("level", strings.ToLower(LevelText[level]))
 	l.WithField("time", time.Now().Format("2006-01-02 15:04:05"))
 	l.WithField("msg", fmt.Sprint(args...))
+
+	if level >= ERROR {
+		l.Trace()
+	}
 
 	buf, _ := json.Marshal(l.v)
 	buf = append(buf, []byte("\n")...)
@@ -51,7 +55,8 @@ func (l *Logger) WithField(key string, value interface{}) *Logger {
 }
 
 func (l *Logger) Trace() *Logger {
-	l.WithField("trace", string(debug.Stack()))
+	fmt.Println(utils.DIR())
+	l.WithField("trace", utils.Trace(2))
 	return l
 }
 

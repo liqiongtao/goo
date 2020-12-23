@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"strings"
 )
 
 const (
@@ -27,15 +28,21 @@ func DIR() string {
 }
 
 func Trace(skip int) []string {
-	ts := []string{}
+	trace := []string{}
 	if skip == 0 {
 		skip = 2
 	}
 	for i := skip; i < 12; i++ {
 		_, file, line, _ := runtime.Caller(i)
-		ts = append(ts, fmt.Sprintf("%s %dL", file, line))
+		if file == "" ||
+			strings.Index(file, "runtime") > 0 ||
+			strings.Index(file, "pkg/mod") > 0 ||
+			strings.Index(file, "vendor") > 0 {
+			continue
+		}
+		trace = append(trace, fmt.Sprintf("%s %dL", file, line))
 	}
-	return ts
+	return trace
 }
 
 func WriteToFile(filename, content string) error {

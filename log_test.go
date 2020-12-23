@@ -35,3 +35,8 @@ func TestLogHook(t *testing.T) {
 	Log.Panic("this is panic")
 	Log.Fatal("this is fatal")
 }
+
+func TestLogTrace(t *testing.T) {
+	Log.Error("this is error")
+	Log.Trace().Debug("this is debug")
+}
