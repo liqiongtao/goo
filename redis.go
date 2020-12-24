@@ -40,6 +40,10 @@ func (r *gooRedis) new() {
 	})
 }
 
+func (r *gooRedis) Client() *redis.Client {
+	return r.client
+}
+
 func (r *gooRedis) ping() {
 	dur := 60 * time.Second
 	ti := time.NewTimer(dur)
