@@ -8,70 +8,77 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"strings"
+	"sync"
 	"syscall"
+	"time"
 )
 
 type TCPGraceful struct {
 	addr    string
 	net     *gracenet.Net
-	handler func(net.Conn) func()
+	handler func(net.Conn)
+	wg      sync.WaitGroup
 }
 
-func NewTCPGraceful(addr string, handler func(net.Conn) func()) *TCPGraceful {
+func NewTCPGraceful(addr string, handler func(net.Conn)) *TCPGraceful {
 	return &TCPGraceful{addr: addr, handler: handler, net: &gracenet.Net{}}
 }
 
-func (g *TCPGraceful) Serve() error {
-	l, err := g.net.Listen("tcp", g.addr)
+func (g *TCPGraceful) Serve() {
+	addr, err := net.ResolveTCPAddr("tcp", g.addr)
 	if err != nil {
-		return err
+		log.Fatal(err.Error())
+	}
+
+	l, err := g.net.ListenTCP("tcp", addr)
+	if err != nil {
+		log.Fatal(err.Error())
 	}
 
 	AsyncFunc(g.killPPID)
 	AsyncFunc(g.storePID)
+	AsyncFunc(g.handleSignal(l))
 
-	errs := make(chan error)
-	AsyncFunc(func() {
-		for {
-			conn, err := l.Accept()
-			if err != nil {
-				errs <- err
+	for {
+		conn, err := l.Accept()
+		if err != nil {
+			Log.Error(err.Error())
+			if strings.Contains(err.Error(), "use of closed network connection") {
 				break
 			}
-			AsyncFunc(g.handler(conn))
+			continue
 		}
-	})
-
-	quit := g.handleSignal(l, errs)
-	select {
-	case err := <-errs:
-		return err
-	case <-quit:
-		return nil
+		g.wg.Add(1)
+		AsyncFunc(func() {
+			defer g.wg.Done()
+			defer conn.Close()
+			conn.SetDeadline(time.Now().Add(30 * time.Second))
+			g.handler(conn)
+		})
 	}
-	return nil
+
+	g.wg.Wait()
 }
 
-func (g *TCPGraceful) handleSignal(l net.Listener, errs chan error) <-chan struct{} {
-	quit := make(chan struct{})
-	AsyncFunc(func() {
-		ch := make(chan os.Signal)
-		signal.Notify(ch, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGUSR1, syscall.SIGUSR2)
+func (g *TCPGraceful) handleSignal(l net.Listener) func() {
+	ch := make(chan os.Signal)
+	signal.Notify(ch, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGUSR1, syscall.SIGUSR2)
+	
+	return func() {
 		for sig := range ch {
 			switch sig {
 			case syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT:
 				signal.Stop(ch)
 				l.Close()
-				close(quit)
 				return
 			case syscall.SIGUSR1, syscall.SIGUSR2:
 				if _, err := g.net.StartProcess(); err != nil {
-					errs <- err
+					Log.Error(err.Error())
 				}
 			}
 		}
-	})
-	return quit
+	}
 }
 
 func (g *TCPGraceful) storePID() {
