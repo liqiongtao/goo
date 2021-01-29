@@ -11,7 +11,6 @@ import (
 	"strings"
 	"sync"
 	"syscall"
-	"time"
 )
 
 type TCPGraceful struct {
@@ -36,9 +35,11 @@ func (g *TCPGraceful) Serve() {
 		log.Fatal(err.Error())
 	}
 
+	quit := make(chan struct{})
+
 	AsyncFunc(g.killPPID)
 	AsyncFunc(g.storePID)
-	AsyncFunc(g.handleSignal(l))
+	AsyncFunc(g.handleSignal(l, quit))
 
 	for {
 		conn, err := l.Accept()
@@ -53,24 +54,25 @@ func (g *TCPGraceful) Serve() {
 		AsyncFunc(func() {
 			defer g.wg.Done()
 			defer conn.Close()
-			conn.SetDeadline(time.Now().Add(30 * time.Second))
-			g.handler(conn)
+			go g.handler(conn)
+			<-quit
 		})
 	}
 
 	g.wg.Wait()
 }
 
-func (g *TCPGraceful) handleSignal(l net.Listener) func() {
+func (g *TCPGraceful) handleSignal(l *net.TCPListener, quit chan struct{}) func() {
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGUSR1, syscall.SIGUSR2)
-	
+
 	return func() {
 		for sig := range ch {
 			switch sig {
 			case syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT:
 				signal.Stop(ch)
 				l.Close()
+				close(quit)
 				return
 			case syscall.SIGUSR1, syscall.SIGUSR2:
 				if _, err := g.net.StartProcess(); err != nil {
