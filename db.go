@@ -81,15 +81,19 @@ func (db *gooDB) ping() {
 
 var __db = map[string]*gooDB{}
 
-func DB(names ...string) *xorm.EngineGroup {
-	if l := len(names); l == 0 || names[0] == "" {
-		return __db["default"].orm
-	}
-	return __db[names[0]].orm
+func DB() *xorm.EngineGroup {
+	return __db["default"].orm
 }
 
 func DBInit(conf DBConfig) {
 	__db["default"] = NewDB(Context, conf)
+}
+
+func DBS(names ...string) *xorm.EngineGroup {
+	if l := len(names); l == 0 || names[0] == "" {
+		return __db["default"].orm
+	}
+	return __db[names[0]].orm
 }
 
 func DBSInit(confs map[string]DBConfig) {

@@ -21,6 +21,9 @@ func (rsp *Response) String() string {
 }
 
 func Success(data interface{}) *Response {
+	if data == nil {
+		data = map[string]interface{}{}
+	}
 	return &Response{
 		Status:  1,
 		Code:    200,
