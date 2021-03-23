@@ -134,7 +134,6 @@ func (s *server) recovery() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
-				Log.Error(fmt.Sprint(err))
 				rsp := Error(500, fmt.Sprint(err))
 				c.Set("__response", rsp)
 				c.AbortWithStatusJSON(200, rsp)
