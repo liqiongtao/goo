@@ -9,7 +9,7 @@ import (
 type Token struct {
 	AppId    string
 	OpenId   int64
-	nonceStr string
+	NonceStr string
 }
 
 func (t *Token) Bytes() []byte {
@@ -25,7 +25,7 @@ func CreateToken(appId string, openId int64) (tokenStr string, err error) {
 	token := &Token{
 		AppId:    appId,
 		OpenId:   openId,
-		nonceStr: utils.NonceStr(),
+		NonceStr: utils.NonceStr(),
 	}
 
 	var (
