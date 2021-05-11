@@ -20,14 +20,14 @@ func Handler(controller iController) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		nw := time.Now()
 		rsp := controller.DoHandle(c)
-		if l := len(rsp.ErrMsg); l > 0 {
-			c.Set("__response_err", rsp.ErrMsg)
-			rsp.ErrMsg = []interface{}{}
-		}
-		c.Set("__response", rsp)
 		if rsp == nil {
 			return
 		}
+		if l := len(rsp.ErrMsg); l > 0 {
+			c.Set("__response_err", rsp.ErrMsg)
+			rsp.ErrMsg = nil
+		}
+		c.Set("__response", rsp)
 		c.Header("X-Response-TS", fmt.Sprintf("%dms", time.Since(nw)/1e6))
 		c.JSON(200, rsp)
 	}
