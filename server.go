@@ -62,7 +62,7 @@ func (*server) ts() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		t := time.Now()
 		c.Next()
-		c.Header("_ts", fmt.Sprintf("%dms", time.Since(t)/1e6))
+		c.Header("X-Response-TS", fmt.Sprintf("%dms", time.Since(t)/1e6))
 	}
 }
 
