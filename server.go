@@ -39,7 +39,7 @@ func NewServer() *server {
 			"/favicon.ico": nil,
 		},
 	}
-	s.Use(s.cors(), s.noAccess(), s.logger(), s.recovery())
+	s.Use(s.ts(), s.cors(), s.noAccess(), s.logger(), s.recovery())
 	s.NoRoute(s.noRoute())
 	return s
 }
@@ -55,6 +55,14 @@ func (s *server) Run(addr string) {
 func (s *server) SetNoLogPath(paths ...string) {
 	for _, v := range paths {
 		s.noLogPaths[v] = nil
+	}
+}
+
+func (*server) ts() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		t := time.Now()
+		c.Next()
+		c.Header("_ts", fmt.Sprintf("%dms", time.Since(t)/1e6))
 	}
 }
 
