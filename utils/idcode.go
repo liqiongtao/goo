@@ -77,7 +77,7 @@ func (c *idCode) Decode(str string) (id int64, err error) {
 		return
 	}
 	if strArr[l-1] != keyArr[(c.l-n+len(strconv.FormatInt(id, 10)))%c.l] {
-		err = errors.New("校验错误，给定字符串不合法")
+		err = errors.New("校验错误")
 	}
 	return
 }
