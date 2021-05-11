@@ -22,7 +22,7 @@ func Handler(controller iController) gin.HandlerFunc {
 		rsp := controller.DoHandle(c)
 		if l := len(rsp.ErrMsg); l > 0 {
 			c.Set("__response_err", rsp.ErrMsg)
-			rsp.ErrMsg = nil
+			rsp.ErrMsg = []interface{}{}
 		}
 		c.Set("__response", rsp)
 		if rsp == nil {
