@@ -116,7 +116,7 @@ func (s *server) logger() gin.HandlerFunc {
 				WithField("content-type", c.ContentType()).
 				WithField("client-ip", c.ClientIP()).
 				WithField("referer", c.GetHeader("Referer")).
-				WithField("execution-time", fmt.Sprintf("%dms", (time.Now().UnixNano()-start.UnixNano())/1e6))
+				WithField("execution-time", fmt.Sprintf("%dms", time.Since(start)/1e6))
 			if rsp, ok := c.Get("__response"); rsp != nil && ok {
 				l.WithField("response", rsp)
 				if rsp.(*Response) != nil {

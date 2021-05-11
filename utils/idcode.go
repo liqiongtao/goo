@@ -1,48 +1,96 @@
 package utils
 
 import (
+	"bytes"
+	"errors"
+	"math/rand"
+	"strconv"
 	"strings"
+	"time"
 )
 
-var words = "abcdefjhigklmnpqrstuvwxyz13567890"
+const key = "abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ1234567890"
 
-type IdCode struct {
-	BaseNum int64
-	StepNum uint
-	Words   string
+type idCode struct {
+	key string
+	l   int
 }
 
-func (ic *IdCode) Code(id int64) string {
-	var str string
-	wLen := len(ic.Words)
-	id = (ic.BaseNum + id) << ic.StepNum
-	for ; id > 0; id /= int64(wLen) {
-		idx := rune(id % int64(wLen))
-		str = string(ic.Words[idx]) + str
+func NewIdCode(key string) *idCode {
+	return &idCode{
+		key: key,
+		l:   len(key),
 	}
-	return strings.ToUpper(str)
 }
 
-func (ic *IdCode) Id(code string) int64 {
-	var id int64
-	wLen := len(ic.Words)
-	wRunes := []rune(ic.Words)
-	code = strings.ToLower(code)
-	for _, w := range []rune(code) {
-		for j, ww := range wRunes {
-			if w == ww {
-				id = id*int64(wLen) + int64(j)
-				break
-			}
+/**
+ * <随机字符A><加密字符串><验证字符B>
+ * 随机字符A = 从key里面随机获取一个字符
+ * 加密字符串 = 每位转换成16进制的ID数字+随机数，然后取余key的长度，得到的数字就是该位在key的字符，加入到总加密后的字符串中
+ * 验证字符B = 从key里面获取一个字符，字符位置=(密钥长度-随机数+给定ID长度)%密钥长度
+ */
+func (c *idCode) Encode(id int64) string {
+	n := c.randNum()
+
+	hexArr := []rune(strconv.FormatInt(id, 16))
+	keyArr := []rune(c.key)
+
+	var buf bytes.Buffer
+	buf.WriteRune(keyArr[n])
+
+	for _, h := range hexArr {
+		hi, _ := strconv.ParseInt(string(h), 16, 64)
+		offset := int(hi) + n
+		buf.WriteRune(keyArr[offset%c.l])
+	}
+
+	buf.WriteRune(keyArr[(c.l-n+len(strconv.FormatInt(id, 10)))%c.l])
+
+	return buf.String()
+}
+
+/**
+ * <随机字符A><加密字符串><验证字符B>
+ * 1. 根据随机字符A，获取随机数n
+ * 2. 获取中间字符串，计算得到id
+ * 3. 验证验证字符B是否正确
+ */
+func (c *idCode) Decode(str string) (id int64, err error) {
+	strArr := []rune(str)
+	keyArr := []rune(c.key)
+
+	l := len(strArr)
+	n := strings.IndexRune(c.key, strArr[0])
+
+	var buf bytes.Buffer
+	for _, s := range strArr[1 : l-1] {
+		pos := strings.IndexRune(c.key, s)
+		if pos >= n {
+			buf.WriteString(strconv.FormatInt(int64(pos-n), 16))
+		} else {
+			buf.WriteString(strconv.FormatInt(int64(c.l-n+pos), 16))
 		}
 	}
-	return (id >> ic.StepNum) - ic.BaseNum
+
+	id, err = strconv.ParseInt(buf.String(), 16, 64)
+	if err != nil {
+		return
+	}
+	if strArr[l-1] != keyArr[(c.l-n+len(strconv.FormatInt(id, 10)))%c.l] {
+		err = errors.New("校验错误，给定字符串不合法")
+	}
+	return
+}
+
+func (c *idCode) randNum() int {
+	rand.Seed(time.Now().UnixNano())
+	return rand.Intn(c.l - 1)
 }
 
 func Id2Code(id int64) string {
-	return (&IdCode{BaseNum: 1001, StepNum: 21, Words: words}).Code(id)
+	return NewIdCode(key).Encode(id)
 }
 
-func Code2Id(code string) int64 {
-	return (&IdCode{BaseNum: 1001, StepNum: 21, Words: words}).Id(code)
+func Code2Id(code string) (int64, error) {
+	return NewIdCode(key).Decode(code)
 }
