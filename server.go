@@ -18,11 +18,17 @@ type iController interface {
 
 func Handler(controller iController) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		nw := time.Now()
 		rsp := controller.DoHandle(c)
+		if l := len(rsp.ErrMsg); l > 0 {
+			c.Set("__response_err", rsp.ErrMsg)
+			rsp.ErrMsg = nil
+		}
 		c.Set("__response", rsp)
 		if rsp == nil {
 			return
 		}
+		c.Header("X-Response-TS", fmt.Sprintf("%dms", time.Since(nw)/1e6))
 		c.JSON(200, rsp)
 	}
 }
@@ -39,7 +45,7 @@ func NewServer() *server {
 			"/favicon.ico": nil,
 		},
 	}
-	s.Use(s.ts(), s.cors(), s.noAccess(), s.logger(), s.recovery())
+	s.Use(s.cors(), s.noAccess(), s.logger(), s.recovery())
 	s.NoRoute(s.noRoute())
 	return s
 }
@@ -55,14 +61,6 @@ func (s *server) Run(addr string) {
 func (s *server) SetNoLogPath(paths ...string) {
 	for _, v := range paths {
 		s.noLogPaths[v] = nil
-	}
-}
-
-func (*server) ts() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		t := time.Now()
-		c.Next()
-		c.Header("X-Response-TS", fmt.Sprintf("%dms", time.Since(t)/1e6))
 	}
 }
 
@@ -125,13 +123,12 @@ func (s *server) logger() gin.HandlerFunc {
 				WithField("client-ip", c.ClientIP()).
 				WithField("referer", c.GetHeader("Referer")).
 				WithField("execution-time", fmt.Sprintf("%dms", time.Since(start)/1e6))
-			if rsp, ok := c.Get("__response"); rsp != nil && ok {
+			if rsp, ok := c.Get("__response"); ok {
 				l.WithField("response", rsp)
-				if rsp.(*Response) != nil {
-					if errMsg := rsp.(*Response).ErrMsg; len(errMsg) > 0 {
-						l.WithField("response_error_msg", errMsg)
-					}
-				}
+			}
+			if rspErr, ok := c.Get("__response_err"); ok {
+				l.Error(rspErr)
+				return
 			}
 			l.Info()
 		}()

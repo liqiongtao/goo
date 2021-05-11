@@ -5,10 +5,10 @@ import (
 )
 
 type Response struct {
-	Status  int           `json:"status"`
-	Code    int           `json:"code"`
-	Message string        `json:"message"`
-	Data    interface{}   `json:"data"`
+	Status  int           `json:"status,omitempty"`
+	Code    int           `json:"code,omitempty"`
+	Message string        `json:"message,omitempty"`
+	Data    interface{}   `json:"data,omitempty"`
 	ErrMsg  []interface{} `json:"-"`
 }
 
