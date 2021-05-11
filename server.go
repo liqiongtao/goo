@@ -123,10 +123,10 @@ func (s *server) logger() gin.HandlerFunc {
 				WithField("client-ip", c.ClientIP()).
 				WithField("referer", c.GetHeader("Referer")).
 				WithField("execution-time", fmt.Sprintf("%dms", time.Since(start)/1e6))
-			if rsp, ok := c.Get("__response"); ok {
+			if rsp, ok := c.Get("__response"); ok && rsp != nil {
 				l.WithField("response", rsp)
 			}
-			if rspErr, ok := c.Get("__response_err"); ok {
+			if rspErr, ok := c.Get("__response_err"); ok && rspErr != nil {
 				l.Error(rspErr)
 				return
 			}
