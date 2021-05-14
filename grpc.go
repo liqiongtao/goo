@@ -64,7 +64,10 @@ func (s *GRPCServer) registerToConsul() {
 }
 
 func GRPCInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (rsp interface{}, err error) {
-	lg := Log.WithField("grpc-method", info.FullMethod).WithField("grpc-request", req).WithField("grpc-response", rsp)
+	if info.FullMethod == "/grpc.health.v1.Health/Check" {
+		return
+	}
+	lg := Log.WithField("grpc-method", info.FullMethod).WithField("grpc-request", req)
 	if md, ok := metadata.FromIncomingContext(ctx); ok {
 		for key, val := range md {
 			lg.WithField(key, val)
@@ -76,9 +79,7 @@ func GRPCInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServe
 		}
 	}()
 	rsp, err = handler(ctx, req)
-	if info.FullMethod == "/grpc.health.v1.Health/Check" {
-		return
-	}
+	lg.WithField("grpc-response", rsp)
 	if err == nil {
 		lg.Info()
 		return
