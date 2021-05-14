@@ -85,6 +85,13 @@ func (s *server) logger() gin.HandlerFunc {
 	var traceId = 1000
 
 	return func(c *gin.Context) {
+		if _, ok := s.noLogPaths[c.Request.URL.Path]; ok {
+			return
+		}
+
+		traceId++
+		c.Set("__traceId", traceId)
+
 		start := time.Now()
 
 		var body interface{}
@@ -102,13 +109,6 @@ func (s *server) logger() gin.HandlerFunc {
 		}
 
 		c.Next()
-
-		if _, ok := s.noLogPaths[c.Request.URL.Path]; ok {
-			return
-		}
-
-		traceId++
-		c.Set("__traceId", traceId)
 
 		defer func() {
 			l := Log.WithField("trace-id", traceId).
