@@ -90,7 +90,7 @@ func (s *server) logger() gin.HandlerFunc {
 		}
 
 		traceId++
-		c.Set("__traceId", traceId)
+		c.Set("__trace_id", traceId)
 
 		start := time.Now()
 
