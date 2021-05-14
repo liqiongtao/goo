@@ -6,6 +6,7 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/metadata"
 )
 
 type GRPCServer struct {
@@ -63,13 +64,15 @@ func (s *GRPCServer) registerToConsul() {
 }
 
 func GRPCInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (rsp interface{}, err error) {
+	lg := Log.WithField("grpc-method", info.FullMethod).WithField("grpc-request", req).WithField("grpc-response", rsp)
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		for key, val := range md {
+			lg.WithField(key, val)
+		}
+	}
 	defer func() {
 		if e := recover(); e != nil {
-			Log.WithField("grpc-method", info.FullMethod).
-				WithField("grep-request", req).
-				WithField("trace-info", ctx.Value("trace-info")).
-				WithField("context", ctx).
-				Error(fmt.Sprintf("%v", e))
+			lg.Error(fmt.Sprintf("%v", e))
 		}
 	}()
 	rsp, err = handler(ctx, req)
@@ -77,20 +80,10 @@ func GRPCInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServe
 		return
 	}
 	if err == nil {
-		Log.WithField("grpc-method", info.FullMethod).
-			WithField("grpc-request", req).
-			WithField("grpc-response", rsp).
-			WithField("trace-info", ctx.Value("trace-info")).
-			WithField("context", ctx).
-			Info()
-	} else {
-		Log.WithField("grpc-method", info.FullMethod).
-			WithField("grpc-request", req).
-			WithField("grpc-response", rsp).
-			WithField("trace-info", ctx.Value("trace-info")).
-			WithField("context", ctx).
-			Error(err.Error())
+		lg.Info()
+		return
 	}
+	lg.Error(err.Error())
 	return
 }
 
