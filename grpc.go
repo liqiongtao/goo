@@ -68,6 +68,7 @@ func GRPCInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServe
 			Log.WithField("grpc-method", info.FullMethod).
 				WithField("grep-request", req).
 				WithField("trace-info", ctx.Value("trace-info")).
+				WithField("context", ctx).
 				Error(fmt.Sprintf("%v", e))
 		}
 	}()
@@ -80,12 +81,14 @@ func GRPCInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServe
 			WithField("grpc-request", req).
 			WithField("grpc-response", rsp).
 			WithField("trace-info", ctx.Value("trace-info")).
+			WithField("context", ctx).
 			Info()
 	} else {
 		Log.WithField("grpc-method", info.FullMethod).
 			WithField("grpc-request", req).
 			WithField("grpc-response", rsp).
 			WithField("trace-info", ctx.Value("trace-info")).
+			WithField("context", ctx).
 			Error(err.Error())
 	}
 	return
