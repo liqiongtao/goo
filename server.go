@@ -139,8 +139,9 @@ func (s *server) recovery() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
-				rsp := Error(500, fmt.Sprint(err))
+				rsp := Error(500, "请求异常")
 				c.Set("__response", rsp)
+				c.Set("__response_err", fmt.Sprint(err))
 				c.AbortWithStatusJSON(200, rsp)
 			}
 		}()
