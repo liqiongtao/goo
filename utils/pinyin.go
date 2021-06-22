@@ -50,7 +50,7 @@ type pinyin struct {
 }
 
 func PinYin(origin string) (string, error) {
-	sync.Once{}.Do(func() {
+	new(sync.Once).Do(func() {
 		tonesMap = make(map[rune]rune)
 		numericTonesMap = make(map[rune]int)
 		pinyinMap = make(map[rune]string)
