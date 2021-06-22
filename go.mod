@@ -3,6 +3,8 @@ module github.com/liqiongtao/goo
 go 1.13
 
 require (
+	github.com/DataDog/zstd v1.3.5 // indirect
+	github.com/Shopify/sarama v1.29.0 // indirect
 	github.com/armon/go-metrics v0.3.5 // indirect
 	github.com/facebookgo/ensure v0.0.0-20200202191622-63f1cf65ac4c // indirect
 	github.com/facebookgo/freeport v0.0.0-20150612182905-d4adf43b75b9 // indirect
@@ -23,8 +25,6 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
-	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0 // indirect
-	golang.org/x/sys v0.0.0-20201207223542-d4d67f95c62d // indirect
 	google.golang.org/grpc v1.34.0
 	gopkg.in/yaml.v2 v2.3.0
 	xorm.io/core v0.7.3
