@@ -56,6 +56,11 @@ func (c *idCode) Encode(id int64) string {
  * 3. 验证验证字符B是否正确
  */
 func (c *idCode) Decode(str string) (id int64, err error) {
+	if str == "" {
+		err = errors.New("code为空")
+		return
+	}
+
 	strArr := []rune(str)
 	keyArr := []rune(c.key)
 
