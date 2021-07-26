@@ -37,12 +37,9 @@ func Trace(skip int) []string {
 		if file == "" ||
 			strings.Index(file, "runtime") > 0 ||
 			strings.Index(file, "src/testing") > 0 ||
+			strings.Index(file, "pkg/mod") > 0 ||
 			strings.Index(file, "vendor") > 0 {
 			continue
-		}
-		index := strings.Index(file, "pkg/mod/")
-		if index >= 0 {
-			file = file[index+8:]
 		}
 		trace = append(trace, fmt.Sprintf("%s %dL", file, line))
 	}
