@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/liqiongtao/goo/utils"
+	"time"
 )
 
 type Token struct {
-	AppId    string
-	OpenId   int64
-	NonceStr string
+	AppId     string
+	OpenId    int64
+	NonceStr  string
+	Timestamp int64
 }
 
 func (t *Token) Bytes() []byte {
@@ -23,9 +25,10 @@ func (t *Token) String() string {
 
 func CreateToken(appId string, openId int64) (tokenStr string, err error) {
 	token := &Token{
-		AppId:    appId,
-		OpenId:   openId,
-		NonceStr: utils.NonceStr(),
+		AppId:     appId,
+		OpenId:    openId,
+		NonceStr:  utils.NonceStr(),
+		Timestamp: time.Now().Unix(),
 	}
 
 	var (
