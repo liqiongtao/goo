@@ -79,3 +79,7 @@ func (r *Request) Get(url string) ([]byte, error) {
 func (r *Request) Post(url string, data []byte) ([]byte, error) {
 	return r.Do("POST", url, bytes.NewReader(data))
 }
+
+func (r *Request) Put(url string, data []byte) ([]byte, error) {
+	return r.Do("PUT", url, bytes.NewReader(data))
+}

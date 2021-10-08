@@ -45,6 +45,10 @@ func PostJson(url string, data []byte) ([]byte, error) {
 	return NewRequest().JsonContentType().Post(url, data)
 }
 
+func Put(url string, data []byte) ([]byte, error) {
+	return NewRequest().Put(url, data)
+}
+
 func Upload(url, field, fileName string, f io.Reader, data map[string]string) ([]byte, error) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
