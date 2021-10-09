@@ -16,7 +16,7 @@ func CronDay(fns ...func()) {
 				for _, fn := range fns {
 					AsyncFunc(fn)
 				}
-				ti, _ := time.Parse("2006-01-02", time.Now().Add(24 * time.Hour).Format("2006-01-02"))
+				ti, _ := time.ParseInLocation("2006-01-02", time.Now().Add(24*time.Hour).Format("2006-01-02"), time.Local)
 				timer.Reset(time.Duration(ti.Unix()-time.Now().Unix()) * time.Second)
 			}
 		}
@@ -37,7 +37,7 @@ func CronHour(fns ...func()) {
 				for _, fn := range fns {
 					AsyncFunc(fn)
 				}
-				ti, _ := time.Parse("2006-01-02 15", time.Now().Add(1 * time.Hour).Format("2006-01-02 15"))
+				ti, _ := time.ParseInLocation("2006-01-02 15", time.Now().Add(1*time.Hour).Format("2006-01-02 15"), time.Local)
 				timer.Reset(time.Duration(ti.Unix()-time.Now().Unix()) * time.Second)
 			}
 		}
@@ -58,7 +58,7 @@ func CronMinute(fns ...func()) {
 				for _, fn := range fns {
 					AsyncFunc(fn)
 				}
-				ti, _ := time.Parse("2006-01-02 15:04", time.Now().Add(60 * time.Second).Format("2006-01-02 15:04"))
+				ti, _ := time.ParseInLocation("2006-01-02 15:04", time.Now().Add(60*time.Second).Format("2006-01-02 15:04"), time.Local)
 				timer.Reset(time.Duration(ti.Unix()-time.Now().Unix()) * time.Second)
 			}
 		}

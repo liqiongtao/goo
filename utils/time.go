@@ -19,11 +19,11 @@ func Ts2DateTime(ts int64) string {
 }
 
 func Date2Ts(date string) int64 {
-	ti, _ := time.Parse("2006-01-02", date)
+	ti, _ := time.ParseInLocation("2006-01-02", date, time.Local)
 	return ti.Unix()
 }
 
 func DateTime2Ts(dateTime string) int64 {
-	ti, _ := time.Parse("2006-01-02 15:04:05", dateTime)
+	ti, _ := time.ParseInLocation("2006-01-02 15:04:05", dateTime, time.Local)
 	return ti.Unix()
 }
